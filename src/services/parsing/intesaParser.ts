@@ -110,15 +110,28 @@ function parseSignedAmount(raw: unknown): number {
  * sheet_to_json (which can be confused by merged cells or unusual ranges).
  */
 function readAllRows(ws: XLSX.WorkSheet): unknown[][] {
-  const ref = ws['!ref']
-  if (!ref) return []
+  // ws['!ref'] (the declared range) is often wrong in bank exports — it may
+  // only cover the first N rows even when the sheet has hundreds of cells.
+  // We derive the true extent by scanning every cell key directly.
+  let maxRow = -1
+  let maxCol = -1
 
-  const range = XLSX.utils.decode_range(ref)
+  for (const key of Object.keys(ws)) {
+    if (key.startsWith('!')) continue
+    try {
+      const addr = XLSX.utils.decode_cell(key)
+      if (addr.r > maxRow) maxRow = addr.r
+      if (addr.c > maxCol) maxCol = addr.c
+    } catch { /* skip malformed keys */ }
+  }
+
+  if (maxRow < 0) return []
+
   const rows: unknown[][] = []
 
-  for (let R = range.s.r; R <= range.e.r; R++) {
+  for (let R = 0; R <= maxRow; R++) {
     const row: unknown[] = []
-    for (let C = range.s.c; C <= range.e.c; C++) {
+    for (let C = 0; C <= maxCol; C++) {
       const addr = XLSX.utils.encode_cell({ r: R, c: C })
       const cell = ws[addr]
       if (!cell) {
