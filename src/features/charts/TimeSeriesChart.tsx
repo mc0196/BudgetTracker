@@ -18,6 +18,7 @@ interface TimeSeriesChartProps {
 
 export function TimeSeriesChart({ month }: TimeSeriesChartProps) {
   const series = useDailySeries(month)
+  const isDark = document.documentElement.classList.contains('dark')
 
   if (!series || series.length === 0) {
     return <EmptyState icon="📈" title="No data for this month" />
@@ -39,7 +40,7 @@ export function TimeSeriesChart({ month }: TimeSeriesChartProps) {
   return (
     <ResponsiveContainer width="100%" height={220}>
       <LineChart data={data}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
+        <CartesianGrid strokeDasharray="3 3" stroke={isDark ? 'rgba(255,255,255,0.06)' : '#f3f4f6'} vertical={false} />
         <XAxis
           dataKey="date"
           axisLine={false}
@@ -61,8 +62,10 @@ export function TimeSeriesChart({ month }: TimeSeriesChartProps) {
           ]}
           contentStyle={{
             borderRadius: '12px',
-            border: 'none',
-            boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+            border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : '#f3f4f6'}`,
+            backgroundColor: isDark ? '#1a1a28' : '#ffffff',
+            color: isDark ? '#cbd5e1' : '#1f2937',
+            boxShadow: isDark ? '0 4px 16px rgb(0 0 0 / 0.5)' : '0 4px 6px -1px rgb(0 0 0 / 0.1)',
           }}
         />
         <Line

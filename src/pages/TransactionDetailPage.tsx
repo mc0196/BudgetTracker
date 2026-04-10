@@ -72,7 +72,7 @@ export function TransactionDetailPage() {
   const dateLabel = format(parseISO(transaction.date), 'EEEE, d MMMM yyyy')
 
   return (
-    <div className="flex flex-col min-h-dvh bg-gray-50 dark:bg-[#0b0b13]">
+    <div className="flex flex-col min-h-dvh bg-gray-50 dark:bg-[#0b0b13] pt-[env(safe-area-inset-top)]">
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-4 bg-white dark:bg-[#1a1a28] border-b border-gray-100 dark:border-white/[0.08]">
         <button

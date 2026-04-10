@@ -8,7 +8,7 @@ export function DashboardPage() {
   const { selectedMonth } = useUIStore()
 
   return (
-    <div className="px-4 pt-safe">
+    <div className="px-4">
       {/* Page header */}
       <div className="flex items-center justify-between py-4">
         <h1 className="text-xl font-bold text-gray-900 dark:text-slate-100">Overview</h1>

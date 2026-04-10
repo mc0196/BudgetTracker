@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Link } from 'react-router-dom'
 import { Card } from '@/components/Card'
 import { CategoryMappings } from '@/features/settings/CategoryMappings'
 import { MacroCategoryEditor } from '@/features/settings/MacroCategoryEditor'
@@ -155,6 +156,16 @@ function DataSettings() {
 
   return (
     <div className="space-y-3">
+      <Card>
+        <Link to="/import" className="w-full flex items-center gap-3 py-1">
+          <span className="text-xl">📥</span>
+          <div className="text-left">
+            <p className="text-sm font-medium text-gray-800 dark:text-slate-200">Import bank statement</p>
+            <p className="text-xs text-gray-400 dark:text-slate-500">CSV, XLSX or XLS from your bank</p>
+          </div>
+        </Link>
+      </Card>
+
       <Card>
         <button
           onClick={handleExport}

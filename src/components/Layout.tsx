@@ -6,7 +6,7 @@ export function Layout() {
   return (
     <div className="flex flex-col min-h-dvh bg-gray-50 dark:bg-[#0b0b13]">
       {/* Main content area — padded at bottom to clear nav bar */}
-      <main className="flex-1 overflow-y-auto pb-20">
+      <main className="flex-1 overflow-y-auto pb-20 pt-[env(safe-area-inset-top)]">
         <Outlet />
       </main>
 
