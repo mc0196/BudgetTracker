@@ -25,14 +25,16 @@ export function TransactionItem({ transaction, onClick }: TransactionItemProps) 
       className={cn(
         'w-full flex items-center gap-3 px-4 py-3',
         'text-left transition-colors',
-        onClick && 'active:bg-gray-50',
+        onClick && 'active:bg-gray-50 dark:active:bg-white/[0.04]',
       )}
     >
       {/* Category icon pill */}
       <span
         className={cn(
           'flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center text-lg',
-          isIncome ? 'bg-income-light' : 'bg-expense-light',
+          isIncome
+            ? 'bg-income-light dark:bg-income-subtle'
+            : 'bg-expense-light dark:bg-expense-subtle',
         )}
         aria-hidden
       >
@@ -41,10 +43,10 @@ export function TransactionItem({ transaction, onClick }: TransactionItemProps) 
 
       {/* Description & category */}
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-gray-900 truncate">
+        <p className="text-sm font-medium text-gray-900 dark:text-slate-100 truncate">
           {truncate(description, 40)}
         </p>
-        <p className="text-xs text-gray-400">{mappedCategory}</p>
+        <p className="text-xs text-gray-400 dark:text-slate-500">{mappedCategory}</p>
       </div>
 
       {/* Amount & date */}
@@ -52,12 +54,14 @@ export function TransactionItem({ transaction, onClick }: TransactionItemProps) 
         <p
           className={cn(
             'text-sm font-semibold tabular-nums',
-            isIncome ? 'text-income' : 'text-expense',
+            isIncome
+              ? 'text-income dark:text-income-bright'
+              : 'text-expense dark:text-expense-bright',
           )}
         >
           {isIncome ? '+' : '-'}{formatCurrency(amount)}
         </p>
-        <p className="text-xs text-gray-400">{dateLabel}</p>
+        <p className="text-xs text-gray-400 dark:text-slate-500">{dateLabel}</p>
       </div>
     </button>
   )
@@ -65,5 +69,5 @@ export function TransactionItem({ transaction, onClick }: TransactionItemProps) 
 
 /** Thin separator between items */
 export function TransactionDivider() {
-  return <div className="mx-4 border-t border-gray-50" />
+  return <div className="mx-4 border-t border-gray-50 dark:border-white/[0.05]" />
 }

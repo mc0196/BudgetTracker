@@ -29,8 +29,8 @@ export function ProgressBar({
 
   const trackClasses = {
     default: 'bg-primary-500',
-    income: 'bg-income',
-    expense: 'bg-expense',
+    income: 'bg-income dark:bg-income-bright',
+    expense: 'bg-expense dark:bg-expense-bright',
     warning: 'bg-amber-500',
   }
 
@@ -42,7 +42,7 @@ export function ProgressBar({
 
   return (
     <div className={cn('w-full', className)}>
-      <div className={cn('w-full bg-gray-100 rounded-full overflow-hidden', heightClasses[size])}>
+      <div className={cn('w-full bg-gray-100 dark:bg-white/[0.08] rounded-full overflow-hidden', heightClasses[size])}>
         <div
           className={cn(
             'h-full rounded-full transition-all duration-500 ease-out',
@@ -56,7 +56,7 @@ export function ProgressBar({
         />
       </div>
       {showLabel && (
-        <p className="mt-1 text-xs text-gray-500 text-right">{pct.toFixed(0)}%</p>
+        <p className="mt-1 text-xs text-gray-500 dark:text-slate-500 text-right">{pct.toFixed(0)}%</p>
       )}
     </div>
   )

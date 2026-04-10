@@ -31,7 +31,6 @@ export function FileDropzone({ onFileSelected, isLoading = false }: FileDropzone
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) handleFile(file)
-    // Reset input so same file can be re-uploaded
     e.target.value = ''
   }
 
@@ -39,7 +38,9 @@ export function FileDropzone({ onFileSelected, isLoading = false }: FileDropzone
     <div
       className={cn(
         'border-2 border-dashed rounded-2xl p-8 text-center transition-colors cursor-pointer',
-        isDragging ? 'border-primary-400 bg-primary-50' : 'border-gray-200 bg-gray-50',
+        isDragging
+          ? 'border-primary-400 bg-primary-50 dark:bg-primary-400/10'
+          : 'border-gray-200 dark:border-white/[0.1] bg-gray-50 dark:bg-white/[0.04]',
         isLoading && 'opacity-50 cursor-not-allowed',
       )}
       onClick={() => !isLoading && inputRef.current?.click()}
@@ -62,13 +63,13 @@ export function FileDropzone({ onFileSelected, isLoading = false }: FileDropzone
       <div className="text-4xl mb-3" aria-hidden>
         {isLoading ? '⏳' : '📂'}
       </div>
-      <p className="text-sm font-medium text-gray-700">
+      <p className="text-sm font-medium text-gray-700 dark:text-slate-300">
         {isLoading ? 'Parsing file…' : 'Drop your bank export here'}
       </p>
-      <p className="text-xs text-gray-400 mt-1">
+      <p className="text-xs text-gray-400 dark:text-slate-500 mt-1">
         or tap to browse &middot; {ACCEPTED_TYPES.join(', ')}
       </p>
-      <p className="text-xs text-gray-400 mt-0.5">
+      <p className="text-xs text-gray-400 dark:text-slate-500 mt-0.5">
         Supports: Intesa Sanpaolo, generic CSV/Excel
       </p>
     </div>

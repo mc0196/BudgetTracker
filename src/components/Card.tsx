@@ -19,7 +19,7 @@ export function Card({ children, className, onClick, padding = 'md' }: CardProps
     <div
       onClick={onClick}
       className={cn(
-        'bg-white rounded-2xl shadow-sm border border-gray-100',
+        'bg-white dark:bg-[#13131e] rounded-2xl shadow-sm dark:shadow-none border border-gray-100 dark:border-white/[0.07]',
         paddingClasses[padding],
         onClick && 'cursor-pointer active:scale-[0.98] transition-transform',
         className,
@@ -41,17 +41,17 @@ interface StatCardProps {
 
 export function StatCard({ label, value, subValue, color = 'default', className }: StatCardProps) {
   const colorClasses = {
-    default: 'text-gray-900',
-    income: 'text-income',
-    expense: 'text-expense',
-    primary: 'text-primary-600',
+    default: 'text-gray-900 dark:text-slate-100',
+    income: 'text-income dark:text-income-bright',
+    expense: 'text-expense dark:text-expense-bright',
+    primary: 'text-primary-600 dark:text-primary-400',
   }
 
   return (
     <Card className={cn('flex flex-col gap-1', className)}>
-      <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{label}</p>
+      <p className="text-xs font-medium text-gray-500 dark:text-slate-500 uppercase tracking-wide">{label}</p>
       <p className={cn('text-2xl font-bold tabular-nums', colorClasses[color])}>{value}</p>
-      {subValue && <p className="text-xs text-gray-400">{subValue}</p>}
+      {subValue && <p className="text-xs text-gray-400 dark:text-slate-600">{subValue}</p>}
     </Card>
   )
 }

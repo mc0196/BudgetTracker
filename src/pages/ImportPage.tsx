@@ -24,19 +24,16 @@ export function ImportPage() {
     try {
       const parser = await parserFactory.getParser(file)
 
-      // Generic parser needs column mapping first — show the mapper UI
       if (parser === genericParser) {
         await showColumnMapper(file)
         return
       }
 
       try {
-        // Try the detected parser (e.g. Intesa)
         const result = await parser.parse(file)
         setPreview(result)
         setState('preview')
       } catch {
-        // Parser failed — fall back to manual column mapping
         await showColumnMapper(file)
       }
     } catch (err) {
@@ -92,13 +89,13 @@ export function ImportPage() {
     setDetectedColumns([])
   }
 
-  // ── Column mapping step (generic files) ────────────────────────────────────
+  // ── Column mapping step ────────────────────────────────────────────────────
   if (state === 'needs-mapping') {
     return (
       <div className="flex flex-col min-h-dvh">
-        <div className="px-4 py-4 bg-white border-b border-gray-100">
-          <h1 className="text-xl font-bold text-gray-900">Map Columns</h1>
-          <p className="text-xs text-gray-400 mt-0.5">{pendingFile?.name}</p>
+        <div className="px-4 py-4 bg-white dark:bg-[#1a1a28] border-b border-gray-100 dark:border-white/[0.08]">
+          <h1 className="text-xl font-bold text-gray-900 dark:text-slate-100">Map Columns</h1>
+          <p className="text-xs text-gray-400 dark:text-slate-500 mt-0.5">{pendingFile?.name}</p>
         </div>
         <div className="flex-1 overflow-y-auto">
           <ColumnMapper
@@ -115,8 +112,8 @@ export function ImportPage() {
   if (state === 'preview' && preview) {
     return (
       <div className="flex flex-col h-dvh">
-        <div className="px-4 py-4 bg-white border-b border-gray-100">
-          <h1 className="text-xl font-bold text-gray-900">Review Import</h1>
+        <div className="px-4 py-4 bg-white dark:bg-[#1a1a28] border-b border-gray-100 dark:border-white/[0.08]">
+          <h1 className="text-xl font-bold text-gray-900 dark:text-slate-100">Review Import</h1>
         </div>
         <div className="flex-1 overflow-hidden">
           <ImportPreview preview={preview} onConfirm={handleConfirm} onCancel={reset} />
@@ -129,11 +126,11 @@ export function ImportPage() {
   if (state === 'done') {
     return (
       <div className="px-4 pt-4">
-        <h1 className="text-xl font-bold text-gray-900 mb-6">Import</h1>
+        <h1 className="text-xl font-bold text-gray-900 dark:text-slate-100 mb-6">Import</h1>
         <div className="flex flex-col items-center gap-4 py-16 text-center">
           <span className="text-5xl">✅</span>
-          <h2 className="text-lg font-semibold text-gray-800">Import complete!</h2>
-          <p className="text-sm text-gray-500">Your transactions have been saved.</p>
+          <h2 className="text-lg font-semibold text-gray-800 dark:text-slate-200">Import complete!</h2>
+          <p className="text-sm text-gray-500 dark:text-slate-400">Your transactions have been saved.</p>
           <button
             onClick={reset}
             className="px-6 py-3 rounded-2xl bg-primary-500 text-white text-sm font-semibold"
@@ -148,7 +145,7 @@ export function ImportPage() {
   // ── Idle / parsing ─────────────────────────────────────────────────────────
   return (
     <div className="px-4 pt-4 pb-6">
-      <h1 className="text-xl font-bold text-gray-900 mb-6">Import</h1>
+      <h1 className="text-xl font-bold text-gray-900 dark:text-slate-100 mb-6">Import</h1>
 
       <FileDropzone
         onFileSelected={handleFileSelected}
@@ -156,7 +153,7 @@ export function ImportPage() {
       />
 
       {error && (
-        <div className="mt-4 p-4 rounded-2xl bg-expense-light text-expense text-sm">
+        <div className="mt-4 p-4 rounded-2xl bg-expense-light dark:bg-expense-subtle text-expense dark:text-expense-bright text-sm">
           <p className="font-medium">Parse error</p>
           <p className="mt-1 text-xs opacity-80">{error}</p>
           <button onClick={reset} className="mt-2 text-xs underline">Try again</button>
@@ -164,20 +161,20 @@ export function ImportPage() {
       )}
 
       <div className="mt-6 space-y-3">
-        <h2 className="text-sm font-semibold text-gray-700">Supported formats</h2>
+        <h2 className="text-sm font-semibold text-gray-700 dark:text-slate-300">Supported formats</h2>
         <div className="flex flex-col gap-2">
           {[
             { icon: '🏦', name: 'Intesa Sanpaolo', ext: 'CSV / XLS', note: 'Auto-detected' },
             { icon: '📄', name: 'Generic CSV', ext: 'CSV', note: 'Column mapping required' },
             { icon: '📊', name: 'Generic Excel', ext: 'XLSX / XLS', note: 'Column mapping required' },
           ].map(f => (
-            <div key={f.name} className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+            <div key={f.name} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-white/[0.04] rounded-xl">
               <span className="text-2xl" aria-hidden>{f.icon}</span>
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-800">{f.name}</p>
-                <p className="text-xs text-gray-400">{f.ext}</p>
+                <p className="text-sm font-medium text-gray-800 dark:text-slate-200">{f.name}</p>
+                <p className="text-xs text-gray-400 dark:text-slate-500">{f.ext}</p>
               </div>
-              <span className="text-xs text-income font-medium">{f.note}</span>
+              <span className="text-xs text-income dark:text-income-bright font-medium">{f.note}</span>
             </div>
           ))}
         </div>

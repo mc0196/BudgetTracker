@@ -11,7 +11,7 @@ export function DashboardPage() {
     <div className="px-4 pt-safe">
       {/* Page header */}
       <div className="flex items-center justify-between py-4">
-        <h1 className="text-xl font-bold text-gray-900">Overview</h1>
+        <h1 className="text-xl font-bold text-gray-900 dark:text-slate-100">Overview</h1>
         <MonthPicker />
       </div>
 

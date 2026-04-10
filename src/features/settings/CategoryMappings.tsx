@@ -25,11 +25,11 @@ export function CategoryMappings() {
         <div key={mapping.id}>
           <div className="flex items-center gap-3 px-4 py-3">
             <div className="flex-1 min-w-0">
-              <p className="text-xs text-gray-400 truncate">{mapping.originalCategory}</p>
+              <p className="text-xs text-gray-400 dark:text-slate-500 truncate">{mapping.originalCategory}</p>
               <select
                 value={mapping.mappedCategory}
                 onChange={e => upsertMapping(mapping.originalCategory, e.target.value)}
-                className="mt-0.5 text-sm font-medium text-gray-800 bg-transparent border-none outline-none w-full"
+                className="mt-0.5 text-sm font-medium text-gray-800 dark:text-slate-200 bg-transparent border-none outline-none w-full"
               >
                 {categories.map(cat => (
                   <option key={cat.id} value={cat.name}>
@@ -41,7 +41,7 @@ export function CategoryMappings() {
             </div>
             <button
               onClick={() => deleteMapping(mapping.id)}
-              className="flex-shrink-0 p-1.5 text-gray-300 hover:text-expense transition-colors rounded-lg"
+              className="flex-shrink-0 p-1.5 text-gray-300 dark:text-slate-600 hover:text-expense transition-colors rounded-lg"
               aria-label="Delete mapping"
             >
               <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
@@ -53,7 +53,9 @@ export function CategoryMappings() {
               </svg>
             </button>
           </div>
-          {i < mappings.length - 1 && <div className="mx-4 border-t border-gray-50" />}
+          {i < mappings.length - 1 && (
+            <div className="mx-4 border-t border-gray-50 dark:border-white/[0.05]" />
+          )}
         </div>
       ))}
     </Card>

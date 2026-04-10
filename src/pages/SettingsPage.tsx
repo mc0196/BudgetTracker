@@ -23,20 +23,20 @@ export function SettingsPage() {
 
   return (
     <div>
-      <div className="px-4 py-4 bg-white border-b border-gray-100">
-        <h1 className="text-xl font-bold text-gray-900">Settings</h1>
+      <div className="px-4 py-4 bg-white dark:bg-[#1a1a28] border-b border-gray-100 dark:border-white/[0.08]">
+        <h1 className="text-xl font-bold text-gray-900 dark:text-slate-100">Settings</h1>
       </div>
 
       {/* Tab bar */}
-      <div className="flex border-b border-gray-100 bg-white overflow-x-auto">
+      <div className="flex border-b border-gray-100 dark:border-white/[0.08] bg-white dark:bg-[#1a1a28] overflow-x-auto">
         {TABS.map(t => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
             className={`flex-1 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
               tab === t.id
-                ? 'border-primary-500 text-primary-600'
-                : 'border-transparent text-gray-500'
+                ? 'border-primary-500 text-primary-600 dark:text-primary-400'
+                : 'border-transparent text-gray-500 dark:text-slate-500'
             }`}
           >
             {t.label}
@@ -78,12 +78,12 @@ function BudgetSettings() {
   return (
     <div className="space-y-4">
       <Card>
-        <h3 className="text-sm font-semibold text-gray-700 mb-3">Monthly Budget ({month})</h3>
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-3">Monthly Budget ({month})</h3>
         {totalBudget && (
           <div className="flex items-center justify-between mb-3">
-            <span className="text-sm text-gray-600">Current limit</span>
+            <span className="text-sm text-gray-600 dark:text-slate-400">Current limit</span>
             <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-gray-900">
+              <span className="text-sm font-semibold text-gray-900 dark:text-slate-100">
                 {formatCurrency(totalBudget.limit)}
               </span>
               <button
@@ -97,7 +97,7 @@ function BudgetSettings() {
         )}
         <div className="flex gap-2">
           <div className="flex-1 relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm">€</span>
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-500 text-sm">€</span>
             <input
               type="number"
               min="0"
@@ -105,7 +105,7 @@ function BudgetSettings() {
               placeholder={totalBudget ? 'New limit' : 'Set budget limit'}
               value={limitStr}
               onChange={e => setLimitStr(e.target.value)}
-              className="w-full pl-7 pr-3 py-2.5 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-primary-400"
+              className="w-full pl-7 pr-3 py-2.5 rounded-xl border border-gray-200 dark:border-white/[0.1] bg-white dark:bg-white/[0.04] text-sm text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-600 focus:outline-none focus:border-primary-400"
             />
           </div>
           <button
@@ -162,8 +162,8 @@ function DataSettings() {
         >
           <span className="text-xl">📤</span>
           <div className="text-left">
-            <p className="text-sm font-medium text-gray-800">Export data</p>
-            <p className="text-xs text-gray-400">Download all transactions as JSON</p>
+            <p className="text-sm font-medium text-gray-800 dark:text-slate-200">Export data</p>
+            <p className="text-xs text-gray-400 dark:text-slate-500">Download all transactions as JSON</p>
           </div>
         </button>
       </Card>
@@ -177,14 +177,14 @@ function DataSettings() {
           <span className="text-xl">🗑️</span>
           <div className="text-left">
             <p className="text-sm font-medium text-expense">Clear all data</p>
-            <p className="text-xs text-gray-400">Permanently delete all transactions</p>
+            <p className="text-xs text-gray-400 dark:text-slate-500">Permanently delete all transactions</p>
           </div>
         </button>
       </Card>
 
       <div className="text-center pt-4">
-        <p className="text-xs text-gray-300">BudgetTracker v0.1.0</p>
-        <p className="text-xs text-gray-300">All data stored locally on your device</p>
+        <p className="text-xs text-gray-300 dark:text-slate-600">BudgetTracker v0.1.0</p>
+        <p className="text-xs text-gray-300 dark:text-slate-600">All data stored locally on your device</p>
       </div>
     </div>
   )

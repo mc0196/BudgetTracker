@@ -61,7 +61,7 @@ export function MonthPicker() {
       {/* Prev arrow */}
       <button
         onClick={prev}
-        className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+        className="p-1.5 rounded-lg text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 hover:bg-gray-100 dark:hover:bg-white/[0.06] transition-colors"
         aria-label="Mese precedente"
       >
         <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
@@ -74,7 +74,9 @@ export function MonthPicker() {
         onClick={() => setOpen(o => !o)}
         className={cn(
           'flex items-center gap-1 px-2 py-1.5 rounded-xl text-sm font-semibold transition-colors',
-          open ? 'bg-primary-50 text-primary-600' : 'text-gray-800 hover:bg-gray-100',
+          open
+            ? 'bg-primary-50 dark:bg-primary-400/10 text-primary-600 dark:text-primary-400'
+            : 'text-gray-800 dark:text-slate-200 hover:bg-gray-100 dark:hover:bg-white/[0.06]',
         )}
         aria-haspopup="listbox"
         aria-expanded={open}
@@ -83,7 +85,7 @@ export function MonthPicker() {
         <svg
           viewBox="0 0 20 20"
           fill="currentColor"
-          className={cn('w-4 h-4 text-gray-400 transition-transform', open && 'rotate-180')}
+          className={cn('w-4 h-4 text-gray-400 dark:text-slate-500 transition-transform', open && 'rotate-180')}
         >
           <path fillRule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z" clipRule="evenodd" />
         </svg>
@@ -93,7 +95,7 @@ export function MonthPicker() {
       <button
         onClick={next}
         disabled={isCurrentMonth}
-        className="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
+        className="p-1.5 rounded-lg text-gray-400 dark:text-slate-500 hover:text-gray-600 dark:hover:text-slate-300 hover:bg-gray-100 dark:hover:bg-white/[0.06] transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
         aria-label="Mese successivo"
       >
         <svg viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
@@ -104,13 +106,13 @@ export function MonthPicker() {
       {/* Dropdown */}
       {open && (
         <div
-          className="absolute top-full right-0 mt-2 w-72 bg-white rounded-2xl shadow-xl border border-gray-100 z-50 overflow-hidden"
+          className="absolute top-full right-0 mt-2 w-72 bg-white dark:bg-[#1a1a28] rounded-2xl shadow-xl dark:shadow-2xl dark:shadow-black/60 border border-gray-100 dark:border-white/[0.08] z-50 overflow-hidden"
           role="listbox"
         >
           <div className="max-h-72 overflow-y-auto p-3 space-y-3">
             {years.map(year => (
               <div key={year}>
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider px-1 mb-1.5">
+                <p className="text-xs font-semibold text-gray-400 dark:text-slate-500 uppercase tracking-wider px-1 mb-1.5">
                   {year}
                 </p>
                 <div className="grid grid-cols-4 gap-1">
@@ -130,8 +132,8 @@ export function MonthPicker() {
                           isSelected
                             ? 'bg-primary-500 text-white'
                             : isFuture
-                            ? 'text-gray-200 cursor-not-allowed'
-                            : 'text-gray-600 hover:bg-gray-100',
+                            ? 'text-gray-200 dark:text-slate-700 cursor-not-allowed'
+                            : 'text-gray-600 dark:text-slate-400 hover:bg-gray-100 dark:hover:bg-white/[0.08]',
                         )}
                         role="option"
                         aria-selected={isSelected}
