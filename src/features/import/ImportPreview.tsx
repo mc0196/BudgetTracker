@@ -42,7 +42,6 @@ export function ImportPreview({ preview, onConfirm, onCancel }: ImportPreviewPro
     }
   }
 
-  // Convert ParsedTransaction to Transaction shape for display component
   const asTransaction = (pt: ParsedTransaction, id: string) => ({
     ...pt,
     id,
@@ -58,22 +57,22 @@ export function ImportPreview({ preview, onConfirm, onCancel }: ImportPreviewPro
       <Card className="mx-4 mt-4">
         <div className="flex items-center justify-between mb-2">
           <div>
-            <p className="text-sm font-semibold text-gray-800">{preview.source}</p>
-            <p className="text-xs text-gray-400">
+            <p className="text-sm font-semibold text-gray-800 dark:text-slate-200">{preview.source}</p>
+            <p className="text-xs text-gray-400 dark:text-slate-500">
               {preview.dateRange.start} → {preview.dateRange.end}
             </p>
           </div>
           <div className="text-right">
-            <p className="text-lg font-bold text-gray-900">{preview.totalCount}</p>
-            <p className="text-xs text-gray-400">transactions</p>
+            <p className="text-lg font-bold text-gray-900 dark:text-slate-100">{preview.totalCount}</p>
+            <p className="text-xs text-gray-400 dark:text-slate-500">transactions</p>
           </div>
         </div>
 
         <div className="flex gap-2 text-xs">
-          <span className="px-2 py-1 bg-income-light text-income font-medium rounded-full">
+          <span className="px-2 py-1 bg-income-light dark:bg-income-subtle text-income dark:text-income-bright font-medium rounded-full">
             {preview.transactions.filter(t => t.type === 'income').length} income
           </span>
-          <span className="px-2 py-1 bg-expense-light text-expense font-medium rounded-full">
+          <span className="px-2 py-1 bg-expense-light dark:bg-expense-subtle text-expense dark:text-expense-bright font-medium rounded-full">
             {preview.transactions.filter(t => t.type === 'expense').length} expenses
           </span>
         </div>
@@ -81,12 +80,12 @@ export function ImportPreview({ preview, onConfirm, onCancel }: ImportPreviewPro
 
       {/* Toggle all */}
       <div className="flex items-center justify-between px-4 py-2 mt-2">
-        <p className="text-xs text-gray-500">
+        <p className="text-xs text-gray-500 dark:text-slate-500">
           {selectedCount} of {preview.totalCount} selected
         </p>
         <button
           onClick={toggleAll}
-          className="text-xs font-medium text-primary-600"
+          className="text-xs font-medium text-primary-600 dark:text-primary-400"
         >
           {selected.size === preview.transactions.length ? 'Deselect all' : 'Select all'}
         </button>
@@ -117,11 +116,11 @@ export function ImportPreview({ preview, onConfirm, onCancel }: ImportPreviewPro
       </div>
 
       {/* Action buttons */}
-      <div className="px-4 py-4 bg-white border-t border-gray-100 flex gap-3">
+      <div className="px-4 py-4 bg-white dark:bg-[#1a1a28] border-t border-gray-100 dark:border-white/[0.08] flex gap-3">
         <button
           onClick={onCancel}
           disabled={isImporting}
-          className="flex-1 py-3 rounded-2xl border border-gray-200 text-sm font-medium text-gray-600 disabled:opacity-50"
+          className="flex-1 py-3 rounded-2xl border border-gray-200 dark:border-white/[0.1] text-sm font-medium text-gray-600 dark:text-slate-400 disabled:opacity-50"
         >
           Cancel
         </button>

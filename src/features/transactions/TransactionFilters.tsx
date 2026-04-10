@@ -26,11 +26,11 @@ export function TransactionFiltersBar({ filters, onChange }: TransactionFiltersP
   }
 
   return (
-    <div className="space-y-3 px-4 py-3 bg-white border-b border-gray-100">
+    <div className="space-y-3 px-4 py-3 bg-white dark:bg-[#1a1a28] border-b border-gray-100 dark:border-white/[0.08]">
       {/* Search */}
       <div className="relative">
         <svg
-          className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400"
+          className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 dark:text-slate-500"
           viewBox="0 0 20 20"
           fill="currentColor"
         >
@@ -45,7 +45,7 @@ export function TransactionFiltersBar({ filters, onChange }: TransactionFiltersP
           placeholder="Search transactions…"
           value={searchInput}
           onChange={e => handleSearch(e.target.value)}
-          className="w-full pl-9 pr-4 py-2 rounded-xl bg-gray-50 text-sm border border-gray-200 focus:outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100"
+          className="w-full pl-9 pr-4 py-2 rounded-xl bg-gray-50 dark:bg-white/[0.06] text-sm text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-600 border border-gray-200 dark:border-white/[0.08] focus:outline-none focus:border-primary-400 focus:ring-2 focus:ring-primary-100 dark:focus:ring-primary-400/20"
         />
       </div>
 
@@ -59,7 +59,7 @@ export function TransactionFiltersBar({ filters, onChange }: TransactionFiltersP
               'flex-1 py-1.5 rounded-xl text-xs font-medium transition-colors',
               (t === 'all' && !filters.type) || filters.type === t
                 ? 'bg-primary-500 text-white'
-                : 'bg-gray-100 text-gray-500',
+                : 'bg-gray-100 dark:bg-white/[0.06] text-gray-500 dark:text-slate-500',
             )}
           >
             {t.charAt(0).toUpperCase() + t.slice(1)}
@@ -76,7 +76,7 @@ export function TransactionFiltersBar({ filters, onChange }: TransactionFiltersP
               'flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors',
               !filters.category
                 ? 'bg-primary-500 text-white'
-                : 'bg-gray-100 text-gray-500',
+                : 'bg-gray-100 dark:bg-white/[0.06] text-gray-500 dark:text-slate-500',
             )}
           >
             All
@@ -89,7 +89,7 @@ export function TransactionFiltersBar({ filters, onChange }: TransactionFiltersP
                 'flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors whitespace-nowrap',
                 filters.category === cat
                   ? 'bg-primary-500 text-white'
-                  : 'bg-gray-100 text-gray-500',
+                  : 'bg-gray-100 dark:bg-white/[0.06] text-gray-500 dark:text-slate-500',
               )}
             >
               {cat}

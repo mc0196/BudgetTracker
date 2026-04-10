@@ -38,19 +38,14 @@ export function ColumnMapper({ columns, onConfirm, onCancel }: ColumnMapperProps
   return (
     <div className="px-4 py-4 space-y-4">
       <div>
-        <h2 className="text-base font-semibold text-gray-900">Map Columns</h2>
-        <p className="text-xs text-gray-400 mt-0.5">
+        <h2 className="text-base font-semibold text-gray-900 dark:text-slate-100">Map Columns</h2>
+        <p className="text-xs text-gray-400 dark:text-slate-500 mt-0.5">
           Tell us which column in your file corresponds to each field.
         </p>
       </div>
 
       <Card className="space-y-4">
-        <ColumnSelect
-          label="Date *"
-          value={dateCol}
-          columns={columns}
-          onChange={setDateCol}
-        />
+        <ColumnSelect label="Date *" value={dateCol} columns={columns} onChange={setDateCol} />
         <ColumnSelect
           label="Amount *"
           value={amountCol}
@@ -58,19 +53,8 @@ export function ColumnMapper({ columns, onConfirm, onCancel }: ColumnMapperProps
           onChange={setAmountCol}
           hint="Negative values = expenses, positive = income"
         />
-        <ColumnSelect
-          label="Description *"
-          value={descCol}
-          columns={columns}
-          onChange={setDescCol}
-        />
-        <ColumnSelect
-          label="Category"
-          value={catCol}
-          columns={columns}
-          onChange={setCatCol}
-          optional
-        />
+        <ColumnSelect label="Description *" value={descCol} columns={columns} onChange={setDescCol} />
+        <ColumnSelect label="Category" value={catCol} columns={columns} onChange={setCatCol} optional />
         <ColumnSelect
           label="Type column"
           value={typeCol}
@@ -81,7 +65,7 @@ export function ColumnMapper({ columns, onConfirm, onCancel }: ColumnMapperProps
         />
         {typeCol && (
           <div>
-            <label className="text-xs font-medium text-gray-500 block mb-1">
+            <label className="text-xs font-medium text-gray-500 dark:text-slate-500 block mb-1">
               Income value in type column
             </label>
             <input
@@ -89,7 +73,7 @@ export function ColumnMapper({ columns, onConfirm, onCancel }: ColumnMapperProps
               placeholder='e.g. "C" or "credit" or "income"'
               value={incomeValue}
               onChange={e => setIncomeValue(e.target.value)}
-              className="w-full text-sm px-3 py-2 rounded-xl border border-gray-200 focus:outline-none focus:border-primary-400"
+              className="w-full text-sm px-3 py-2 rounded-xl border border-gray-200 dark:border-white/[0.1] bg-white dark:bg-white/[0.04] text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-600 focus:outline-none focus:border-primary-400"
             />
           </div>
         )}
@@ -98,7 +82,7 @@ export function ColumnMapper({ columns, onConfirm, onCancel }: ColumnMapperProps
       <div className="flex gap-3">
         <button
           onClick={onCancel}
-          className="flex-1 py-3 rounded-2xl border border-gray-200 text-sm font-medium text-gray-600"
+          className="flex-1 py-3 rounded-2xl border border-gray-200 dark:border-white/[0.1] text-sm font-medium text-gray-600 dark:text-slate-400"
         >
           Cancel
         </button>
@@ -126,18 +110,18 @@ interface ColumnSelectProps {
 function ColumnSelect({ label, value, columns, onChange, optional, hint }: ColumnSelectProps) {
   return (
     <div>
-      <label className="text-xs font-medium text-gray-500 block mb-1">{label}</label>
+      <label className="text-xs font-medium text-gray-500 dark:text-slate-500 block mb-1">{label}</label>
       <select
         value={value}
         onChange={e => onChange(e.target.value)}
-        className="w-full text-sm px-3 py-2 rounded-xl border border-gray-200 bg-white focus:outline-none focus:border-primary-400"
+        className="w-full text-sm px-3 py-2 rounded-xl border border-gray-200 dark:border-white/[0.1] bg-white dark:bg-[#13131e] text-gray-800 dark:text-slate-200 focus:outline-none focus:border-primary-400"
       >
         {optional && <option value="">— not used —</option>}
         {columns.map(col => (
           <option key={col} value={col}>{col}</option>
         ))}
       </select>
-      {hint && <p className="text-xs text-gray-400 mt-0.5">{hint}</p>}
+      {hint && <p className="text-xs text-gray-400 dark:text-slate-500 mt-0.5">{hint}</p>}
     </div>
   )
 }

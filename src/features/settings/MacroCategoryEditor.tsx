@@ -30,11 +30,10 @@ export function MacroCategoryEditor() {
       <Card padding="none">
         {categories.map((cat, i) => (
           <div key={cat.id}>
-            <CategoryRow
-              category={cat}
-              onDelete={() => deleteCategory(cat.id)}
-            />
-            {i < categories.length - 1 && <div className="mx-4 border-t border-gray-50" />}
+            <CategoryRow category={cat} onDelete={() => deleteCategory(cat.id)} />
+            {i < categories.length - 1 && (
+              <div className="mx-4 border-t border-gray-50 dark:border-white/[0.05]" />
+            )}
           </div>
         ))}
       </Card>
@@ -49,19 +48,20 @@ export function MacroCategoryEditor() {
               value={newName}
               onChange={e => setNewName(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && handleAdd()}
-              className="w-full px-3 py-2 rounded-xl border border-gray-200 text-sm focus:outline-none focus:border-primary-400"
+              className="w-full px-3 py-2 rounded-xl border border-gray-200 dark:border-white/[0.1] bg-white dark:bg-white/[0.04] text-sm text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-600 focus:outline-none focus:border-primary-400"
             />
 
-            {/* Icon picker */}
             <div>
-              <p className="text-xs text-gray-500 mb-1.5">Icon</p>
+              <p className="text-xs text-gray-500 dark:text-slate-500 mb-1.5">Icon</p>
               <div className="flex flex-wrap gap-2">
                 {ICON_OPTIONS.map(icon => (
                   <button
                     key={icon}
                     onClick={() => setNewIcon(icon)}
                     className={`text-xl p-1 rounded-lg transition-colors ${
-                      newIcon === icon ? 'bg-primary-100' : 'hover:bg-gray-100'
+                      newIcon === icon
+                        ? 'bg-primary-100 dark:bg-primary-400/20'
+                        : 'hover:bg-gray-100 dark:hover:bg-white/[0.06]'
                     }`}
                   >
                     {icon}
@@ -73,7 +73,7 @@ export function MacroCategoryEditor() {
             <div className="flex gap-2">
               <button
                 onClick={() => setIsAdding(false)}
-                className="flex-1 py-2 rounded-xl border border-gray-200 text-sm text-gray-600"
+                className="flex-1 py-2 rounded-xl border border-gray-200 dark:border-white/[0.1] text-sm text-gray-600 dark:text-slate-400"
               >
                 Cancel
               </button>
@@ -90,7 +90,7 @@ export function MacroCategoryEditor() {
       ) : (
         <button
           onClick={() => setIsAdding(true)}
-          className="w-full py-3 rounded-2xl border-2 border-dashed border-gray-200 text-sm font-medium text-gray-400 hover:border-primary-300 hover:text-primary-500 transition-colors"
+          className="w-full py-3 rounded-2xl border-2 border-dashed border-gray-200 dark:border-white/[0.1] text-sm font-medium text-gray-400 dark:text-slate-500 hover:border-primary-300 dark:hover:border-primary-400/50 hover:text-primary-500 dark:hover:text-primary-400 transition-colors"
         >
           + Add category
         </button>
@@ -108,10 +108,10 @@ function CategoryRow({ category, onDelete }: CategoryRowProps) {
   return (
     <div className="flex items-center gap-3 px-4 py-3">
       <span className="text-xl" aria-hidden>{category.icon}</span>
-      <span className="flex-1 text-sm font-medium text-gray-800">{category.name}</span>
+      <span className="flex-1 text-sm font-medium text-gray-800 dark:text-slate-200">{category.name}</span>
       <button
         onClick={onDelete}
-        className="p-1.5 text-gray-300 hover:text-expense transition-colors rounded-lg"
+        className="p-1.5 text-gray-300 dark:text-slate-600 hover:text-expense transition-colors rounded-lg"
         aria-label={`Delete ${category.name}`}
       >
         <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">

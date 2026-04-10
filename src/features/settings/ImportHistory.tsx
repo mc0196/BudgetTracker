@@ -34,7 +34,9 @@ export function ImportHistory() {
               showToast(`Removed ${deleted} transactions`, 'info')
             }}
           />
-          {i < sources.length - 1 && <div className="mx-4 border-t border-gray-50" />}
+          {i < sources.length - 1 && (
+            <div className="mx-4 border-t border-gray-50 dark:border-white/[0.05]" />
+          )}
         </div>
       ))}
     </Card>
@@ -54,7 +56,6 @@ function ImportRow({ source, count, onDelete }: ImportRowProps) {
   const handlePress = async () => {
     if (!confirming) {
       setConfirming(true)
-      // Auto-reset after 3 s if user doesn't confirm
       setTimeout(() => setConfirming(false), 3000)
       return
     }
@@ -72,8 +73,8 @@ function ImportRow({ source, count, onDelete }: ImportRowProps) {
       <span className="text-2xl shrink-0" aria-hidden>📄</span>
 
       <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium text-gray-800 truncate">{source}</p>
-        <p className="text-xs text-gray-400">{count} transaction{count !== 1 ? 's' : ''}</p>
+        <p className="text-sm font-medium text-gray-800 dark:text-slate-200 truncate">{source}</p>
+        <p className="text-xs text-gray-400 dark:text-slate-500">{count} transaction{count !== 1 ? 's' : ''}</p>
       </div>
 
       <button
@@ -82,7 +83,7 @@ function ImportRow({ source, count, onDelete }: ImportRowProps) {
         className={`shrink-0 px-3 py-1.5 rounded-xl text-xs font-semibold transition-colors ${
           confirming
             ? 'bg-expense text-white'
-            : 'bg-expense-light text-expense'
+            : 'bg-expense-light dark:bg-expense-subtle text-expense dark:text-expense-bright'
         }`}
       >
         {isDeleting ? '…' : confirming ? 'Confirm' : 'Delete'}

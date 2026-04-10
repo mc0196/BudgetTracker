@@ -11,24 +11,24 @@ export function ChartsPage() {
   return (
     <div className="px-4 pt-4 space-y-4 pb-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-bold text-gray-900">Analytics</h1>
+        <h1 className="text-xl font-bold text-gray-900 dark:text-slate-100">Analytics</h1>
         <MonthPicker />
       </div>
 
       <Card>
-        <h2 className="text-sm font-semibold text-gray-700 mb-4">Spending by Category</h2>
+        <h2 className="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-4">Spending by Category</h2>
         <SpendingPieChart month={selectedMonth} />
       </Card>
 
       <Card>
-        <h2 className="text-sm font-semibold text-gray-700 mb-4">
+        <h2 className="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-4">
           Income vs Expenses — Last 6 months
         </h2>
         <IncomeExpenseBarChart />
       </Card>
 
       <Card>
-        <h2 className="text-sm font-semibold text-gray-700 mb-4">Daily Activity</h2>
+        <h2 className="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-4">Daily Activity</h2>
         <TimeSeriesChart month={selectedMonth} />
       </Card>
     </div>

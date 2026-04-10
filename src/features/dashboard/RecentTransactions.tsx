@@ -18,11 +18,11 @@ export function RecentTransactions({ month, limit = 5 }: RecentTransactionsProps
   return (
     <Card padding="none">
       <div className="flex items-center justify-between px-4 pt-4 pb-2">
-        <h3 className="text-sm font-semibold text-gray-700">Recent</h3>
+        <h3 className="text-sm font-semibold text-gray-700 dark:text-slate-300">Recent</h3>
         {(transactions.length > limit) && (
           <Link
             to="/transactions"
-            className="text-xs font-medium text-primary-600"
+            className="text-xs font-medium text-primary-600 dark:text-primary-400"
           >
             See all
           </Link>

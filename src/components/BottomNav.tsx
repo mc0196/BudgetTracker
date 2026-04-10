@@ -24,7 +24,7 @@ const NAV_ITEMS = [
     to: '/add',
     label: 'Add',
     icon: (_active: boolean) => (
-      <span className="flex items-center justify-center w-12 h-12 rounded-full bg-primary-500 text-white shadow-lg -mt-5">
+      <span className="flex items-center justify-center w-12 h-12 rounded-full bg-primary-500 text-white shadow-lg shadow-primary-500/30 -mt-5">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="w-6 h-6">
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
         </svg>
@@ -54,7 +54,7 @@ const NAV_ITEMS = [
 
 export function BottomNav() {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-100 shadow-[0_-1px_0_0_rgb(0,0,0,0.05)] pb-[env(safe-area-inset-bottom)]">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 dark:bg-black/70 dark:backdrop-blur-2xl border-t border-gray-100 dark:border-white/[0.08] pb-[env(safe-area-inset-bottom)]">
       <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-1">
         {NAV_ITEMS.map(({ to, label, icon }) => (
           <NavLink
@@ -67,8 +67,8 @@ export function BottomNav() {
                 to === '/add'
                   ? 'relative'
                   : isActive
-                  ? 'text-primary-600'
-                  : 'text-gray-400 hover:text-gray-600',
+                  ? 'text-primary-600 dark:text-primary-400'
+                  : 'text-gray-400 dark:text-slate-600 hover:text-gray-600 dark:hover:text-slate-400',
               )
             }
           >
@@ -76,7 +76,10 @@ export function BottomNav() {
               <>
                 {icon(isActive)}
                 {to !== '/add' && (
-                  <span className={cn('text-[10px] font-medium leading-none', isActive ? 'text-primary-600' : 'text-gray-400')}>
+                  <span className={cn(
+                    'text-[10px] font-medium leading-none',
+                    isActive ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-slate-600',
+                  )}>
                     {label}
                   </span>
                 )}
