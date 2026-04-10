@@ -2,6 +2,21 @@ import { formatCurrency, truncate } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 import type { Transaction } from '@/types'
 
+const CATEGORY_ICONS: Record<string, string> = {
+  'Food & Dining': '🍽️',
+  'Transport': '🚗',
+  'Shopping': '🛍️',
+  'Housing': '🏠',
+  'Health': '💊',
+  'Entertainment': '🎬',
+  'Travel': '✈️',
+  'Utilities': '💡',
+  'Income': '💰',
+  'Education': '📚',
+  'Other': '📦',
+  'Uncategorized': '❓',
+}
+
 interface TransactionItemProps {
   transaction: Transaction
   onClick?: (transaction: Transaction) => void
@@ -38,7 +53,7 @@ export function TransactionItem({ transaction, onClick }: TransactionItemProps) 
         )}
         aria-hidden
       >
-        {isIncome ? '↑' : '↓'}
+        {CATEGORY_ICONS[mappedCategory] ?? (isIncome ? '↑' : '↓')}
       </span>
 
       {/* Description & category */}
