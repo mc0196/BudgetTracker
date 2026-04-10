@@ -9,6 +9,7 @@ interface SpendingPieChartProps {
 
 export function SpendingPieChart({ month }: SpendingPieChartProps) {
   const stats = useCategoryStats(month)
+  const isDark = document.documentElement.classList.contains('dark')
 
   if (!stats || stats.length === 0) {
     return <EmptyState icon="🥧" title="No expense data" description="Import transactions to see spending breakdown" />
@@ -53,8 +54,10 @@ export function SpendingPieChart({ month }: SpendingPieChartProps) {
             formatter={(value: number) => [formatCurrency(value), 'Spent']}
             contentStyle={{
               borderRadius: '12px',
-              border: 'none',
-              boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+              border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : '#f3f4f6'}`,
+              backgroundColor: isDark ? '#1a1a28' : '#ffffff',
+              color: isDark ? '#cbd5e1' : '#1f2937',
+              boxShadow: isDark ? '0 4px 16px rgb(0 0 0 / 0.5)' : '0 4px 6px -1px rgb(0 0 0 / 0.1)',
             }}
           />
         </PieChart>
@@ -69,13 +72,13 @@ export function SpendingPieChart({ month }: SpendingPieChartProps) {
                 className="w-3 h-3 rounded-full flex-shrink-0"
                 style={{ backgroundColor: entry.color }}
               />
-              <span className="text-sm text-gray-700">{entry.category}</span>
+              <span className="text-sm text-gray-700 dark:text-slate-300">{entry.category}</span>
             </div>
             <div className="text-right">
-              <span className="text-sm font-medium text-gray-900 tabular-nums">
+              <span className="text-sm font-medium text-gray-900 dark:text-slate-100 tabular-nums">
                 {formatCurrency(entry.total)}
               </span>
-              <span className="text-xs text-gray-400 ml-1">
+              <span className="text-xs text-gray-400 dark:text-slate-500 ml-1">
                 {entry.percentage.toFixed(0)}%
               </span>
             </div>
