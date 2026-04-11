@@ -1,7 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import { TransactionItem, TransactionDivider } from '@/components/TransactionItem'
 import { EmptyState } from '@/components/EmptyState'
-import { LoadingSpinner } from '@/components/LoadingSpinner'
+import { SkeletonTransactionRow } from '@/components/Skeleton'
 import { TransactionFiltersBar } from './TransactionFilters'
 import { useFilteredTransactions } from '@/hooks/useTransactions'
 import { useUIStore } from '@/store'
@@ -24,8 +24,14 @@ export function TransactionList() {
 
   if (transactions === undefined) {
     return (
-      <div className="flex justify-center py-12">
-        <LoadingSpinner size="lg" />
+      <div>
+        <div className="px-4 pt-3 space-y-3">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div key={i} className="bg-white dark:bg-[#13131e] rounded-2xl border border-gray-100 dark:border-white/[0.07] overflow-hidden">
+              <SkeletonTransactionRow />
+            </div>
+          ))}
+        </div>
       </div>
     )
   }

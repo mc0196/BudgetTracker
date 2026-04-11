@@ -5,8 +5,8 @@ import { Toast } from './Toast'
 export function Layout() {
   return (
     <div className="flex flex-col min-h-dvh bg-gray-50 dark:bg-[#0b0b13]">
-      {/* Main content area — padded at bottom to clear nav bar */}
-      <main className="flex-1 overflow-y-auto pb-20">
+      {/* Main content — top padding clears notch/Dynamic Island, bottom clears nav */}
+      <main className="flex-1 overflow-y-auto pt-safe pb-20">
         <Outlet />
       </main>
 

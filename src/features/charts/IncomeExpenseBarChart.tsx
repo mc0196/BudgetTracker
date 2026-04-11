@@ -14,6 +14,7 @@ import { EmptyState } from '@/components/EmptyState'
 
 export function IncomeExpenseBarChart() {
   const series = useMonthSeries(6)
+  const isDark = document.documentElement.classList.contains('dark')
 
   if (!series || series.length === 0) {
     return <EmptyState icon="📊" title="No data yet" />
@@ -28,7 +29,7 @@ export function IncomeExpenseBarChart() {
   return (
     <ResponsiveContainer width="100%" height={220}>
       <BarChart data={data} barCategoryGap="30%">
-        <CartesianGrid strokeDasharray="3 3" stroke="#f3f4f6" vertical={false} />
+        <CartesianGrid strokeDasharray="3 3" stroke={isDark ? 'rgba(255,255,255,0.06)' : '#f3f4f6'} vertical={false} />
         <XAxis
           dataKey="name"
           axisLine={false}
@@ -49,9 +50,12 @@ export function IncomeExpenseBarChart() {
           ]}
           contentStyle={{
             borderRadius: '12px',
-            border: 'none',
-            boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+            border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : '#f3f4f6'}`,
+            backgroundColor: isDark ? '#1a1a28' : '#ffffff',
+            color: isDark ? '#cbd5e1' : '#1f2937',
+            boxShadow: isDark ? '0 8px 24px rgb(0 0 0 / 0.5)' : '0 4px 6px -1px rgb(0 0 0 / 0.1)',
           }}
+          cursor={{ fill: isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)' }}
         />
         <Legend iconType="circle" iconSize={8} />
         <Bar dataKey="income" fill="#16a34a" name="Income" radius={[4, 4, 0, 0]} />
