@@ -61,7 +61,7 @@ export function AddTransactionPage() {
   }
 
   return (
-    <div className="flex flex-col h-dvh bg-white dark:bg-[#0b0b13] pt-[env(safe-area-inset-top)]">
+    <div className="flex flex-col h-dvh bg-white dark:bg-[#0b0b13] pt-safe">
       {/* Header */}
       <div className="flex items-center gap-3 px-4 py-4 border-b border-gray-100 dark:border-white/[0.08]">
         <button

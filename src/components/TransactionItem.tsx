@@ -4,16 +4,16 @@ import type { Transaction } from '@/types'
 
 const CATEGORY_ICONS: Record<string, string> = {
   'Food & Dining': '🍽️',
-  'Transport': '🚗',
-  'Shopping': '🛍️',
-  'Housing': '🏠',
-  'Health': '💊',
+  'Transport':     '🚗',
+  'Shopping':      '🛍️',
+  'Housing':       '🏠',
+  'Health':        '💊',
   'Entertainment': '🎬',
-  'Travel': '✈️',
-  'Utilities': '💡',
-  'Income': '💰',
-  'Education': '📚',
-  'Other': '📦',
+  'Travel':        '✈️',
+  'Utilities':     '💡',
+  'Income':        '💰',
+  'Education':     '📚',
+  'Other':         '📦',
   'Uncategorized': '❓',
 }
 

@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { Card } from '@/components/Card'
 import { TransactionItem, TransactionDivider } from '@/components/TransactionItem'
 import { EmptyState } from '@/components/EmptyState'
+import { SkeletonRecentList } from '@/components/Skeleton'
 import { useMonthTransactions } from '@/hooks/useTransactions'
 
 interface RecentTransactionsProps {
@@ -13,7 +14,7 @@ export function RecentTransactions({ month, limit = 5 }: RecentTransactionsProps
   const transactions = useMonthTransactions(month)
   const recent = transactions?.slice(0, limit)
 
-  if (!transactions) return null
+  if (!transactions) return <SkeletonRecentList rows={limit} />
 
   return (
     <Card padding="none">

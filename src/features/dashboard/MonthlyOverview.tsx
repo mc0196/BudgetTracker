@@ -1,6 +1,6 @@
-import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { useMonthlyStats } from '@/hooks/useAnalytics'
 import { formatCurrency } from '@/lib/utils'
+import { SkeletonMonthlyOverview } from '@/components/Skeleton'
 
 interface MonthlyOverviewProps {
   month: string
@@ -9,18 +9,12 @@ interface MonthlyOverviewProps {
 export function MonthlyOverview({ month }: MonthlyOverviewProps) {
   const stats = useMonthlyStats(month)
 
-  if (!stats) {
-    return (
-      <div className="flex justify-center py-8">
-        <LoadingSpinner />
-      </div>
-    )
-  }
+  if (!stats) return <SkeletonMonthlyOverview />
 
   const isPositive = stats.netBalance >= 0
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 animate-fade-in">
       {/* Balance hero */}
       <div className={`rounded-3xl px-5 py-5 ${
         isPositive

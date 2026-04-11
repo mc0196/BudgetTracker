@@ -24,7 +24,7 @@ const NAV_ITEMS = [
     to: '/add',
     label: 'Add',
     icon: (_active: boolean) => (
-      <span className="flex items-center justify-center w-12 h-12 rounded-full bg-primary-500 text-white shadow-lg shadow-primary-500/30 -mt-5">
+      <span className="flex items-center justify-center w-12 h-12 rounded-full bg-primary-500 text-white shadow-lg shadow-primary-500/30 -mt-5 transition-transform active:scale-95">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.5} className="w-6 h-6">
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
         </svg>
@@ -82,6 +82,10 @@ export function BottomNav() {
                   )}>
                     {label}
                   </span>
+                )}
+                {/* Active dot indicator */}
+                {to !== '/add' && isActive && (
+                  <span className="absolute -bottom-0 w-1 h-1 rounded-full bg-primary-500 dark:bg-primary-400" />
                 )}
               </>
             )}

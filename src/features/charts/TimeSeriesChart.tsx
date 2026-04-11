@@ -65,7 +65,7 @@ export function TimeSeriesChart({ month }: TimeSeriesChartProps) {
             border: `1px solid ${isDark ? 'rgba(255,255,255,0.08)' : '#f3f4f6'}`,
             backgroundColor: isDark ? '#1a1a28' : '#ffffff',
             color: isDark ? '#cbd5e1' : '#1f2937',
-            boxShadow: isDark ? '0 4px 16px rgb(0 0 0 / 0.5)' : '0 4px 6px -1px rgb(0 0 0 / 0.1)',
+            boxShadow: isDark ? '0 8px 24px rgb(0 0 0 / 0.5)' : '0 4px 6px -1px rgb(0 0 0 / 0.1)',
           }}
         />
         <Line

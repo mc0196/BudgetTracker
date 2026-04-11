@@ -21,7 +21,7 @@ export function Card({ children, className, onClick, padding = 'md' }: CardProps
       className={cn(
         'bg-white dark:bg-[#13131e] rounded-2xl shadow-sm dark:shadow-none border border-gray-100 dark:border-white/[0.07]',
         paddingClasses[padding],
-        onClick && 'cursor-pointer active:scale-[0.98] transition-transform',
+        onClick && 'cursor-pointer active:scale-[0.98] active:brightness-95 dark:active:brightness-90 transition-all duration-150',
         className,
       )}
     >
