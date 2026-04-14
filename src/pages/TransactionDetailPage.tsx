@@ -7,6 +7,7 @@ import { formatCurrency } from '@/lib/utils'
 import { format, parseISO } from 'date-fns'
 import { PageLoader } from '@/components/LoadingSpinner'
 import { Card } from '@/components/Card'
+import { categoryService } from '@/services/categoryService'
 import type { TransactionType } from '@/types'
 
 export function TransactionDetailPage() {
@@ -48,6 +49,10 @@ export function TransactionDetailPage() {
       date: editDate,
       type: editType,
     })
+    // Persist the mapping so future imports auto-categorize the same original category
+    if (transaction.originalCategory && editCategory !== transaction.mappedCategory) {
+      await categoryService.setMapping(transaction.originalCategory, editCategory)
+    }
     showToast('Transaction updated', 'success')
     setIsEditing(false)
   }
