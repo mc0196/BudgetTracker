@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { Link } from 'react-router-dom'
 import { Card } from '@/components/Card'
 import { CategoryMappings } from '@/features/settings/CategoryMappings'
@@ -127,6 +127,8 @@ function BudgetSettings() {
 function DataSettings() {
   const { showToast } = useUIStore()
   const [isClearing, setIsClearing] = useState(false)
+  const [isImporting, setIsImporting] = useState(false)
+  const jsonInputRef = useRef<HTMLInputElement>(null)
 
   const handleExport = async () => {
     const transactions = await db.transactions.toArray()
@@ -139,6 +141,34 @@ function DataSettings() {
     a.click()
     URL.revokeObjectURL(url)
     showToast('Data exported', 'success')
+  }
+
+  const handleImportJSON = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+    e.target.value = ''
+    setIsImporting(true)
+    try {
+      const text = await file.text()
+      const data = JSON.parse(text)
+      if (!Array.isArray(data)) throw new Error('Invalid format — expected a JSON array')
+      const valid = data.filter(t =>
+        t && typeof t === 'object' &&
+        typeof t.id === 'string' &&
+        typeof t.amount === 'number' &&
+        (t.type === 'income' || t.type === 'expense') &&
+        typeof t.date === 'string' &&
+        typeof t.description === 'string'
+      )
+      if (valid.length === 0) throw new Error('No valid transactions found in file')
+      // bulkPut: existing ids are updated, new ids are inserted — no duplicates
+      await db.transactions.bulkPut(valid)
+      showToast(`Imported ${valid.length} transactions`, 'success')
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Import failed', 'error')
+    } finally {
+      setIsImporting(false)
+    }
   }
 
   const handleClearAll = async () => {
@@ -164,6 +194,30 @@ function DataSettings() {
             <p className="text-xs text-gray-400 dark:text-slate-500">CSV, XLSX or XLS from your bank</p>
           </div>
         </Link>
+      </Card>
+
+      <Card>
+        <input
+          ref={jsonInputRef}
+          type="file"
+          accept=".json"
+          onChange={handleImportJSON}
+          className="hidden"
+          disabled={isImporting}
+        />
+        <button
+          onClick={() => jsonInputRef.current?.click()}
+          disabled={isImporting}
+          className="w-full flex items-center gap-3 py-1"
+        >
+          <span className="text-xl">{isImporting ? '⏳' : '📲'}</span>
+          <div className="text-left">
+            <p className="text-sm font-medium text-gray-800 dark:text-slate-200">
+              {isImporting ? 'Importing…' : 'Import from JSON'}
+            </p>
+            <p className="text-xs text-gray-400 dark:text-slate-500">Sync from another device's export</p>
+          </div>
+        </button>
       </Card>
 
       <Card>
