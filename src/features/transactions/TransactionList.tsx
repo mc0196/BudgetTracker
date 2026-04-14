@@ -4,34 +4,39 @@ import { EmptyState } from '@/components/EmptyState'
 import { SkeletonTransactionRow } from '@/components/Skeleton'
 import { TransactionFiltersBar } from './TransactionFilters'
 import { useFilteredTransactions } from '@/hooks/useTransactions'
+import { useTransactionMutations } from '@/hooks/useTransactions'
 import { useUIStore } from '@/store'
 import { format, parseISO } from 'date-fns'
 import type { Transaction } from '@/types'
-import { Card } from '@/components/Card'
 
 export function TransactionList() {
   const navigate = useNavigate()
-  const { transactionFilters, setTransactionFilters } = useUIStore()
+  const { transactionFilters, setTransactionFilters, showToast } = useUIStore()
   const transactions = useFilteredTransactions(transactionFilters)
+  const { remove } = useTransactionMutations()
 
-  // Group transactions by date for display
   const grouped = groupByDate(transactions ?? [])
   const groups = Object.entries(grouped).sort((a, b) => b[0].localeCompare(a[0]))
 
-  const handleTransactionClick = (tx: Transaction) => {
-    navigate(`/transactions/${tx.id}`)
+  const handleClick = (tx: Transaction) => navigate(`/transactions/${tx.id}`)
+
+  const handleDelete = async (id: string) => {
+    try {
+      await remove(id)
+      showToast('Transaction deleted', 'info')
+    } catch {
+      showToast('Delete failed', 'error')
+    }
   }
 
   if (transactions === undefined) {
     return (
-      <div>
-        <div className="px-4 pt-3 space-y-3">
-          {Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="bg-white dark:bg-[#13131e] rounded-2xl border border-gray-100 dark:border-white/[0.07] overflow-hidden">
-              <SkeletonTransactionRow />
-            </div>
-          ))}
-        </div>
+      <div className="px-4 pt-3 space-y-3">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="bg-white dark:bg-[#13131e] rounded-2xl border border-gray-100 dark:border-white/[0.07] overflow-hidden">
+            <SkeletonTransactionRow />
+          </div>
+        ))}
       </div>
     )
   }
@@ -50,17 +55,21 @@ export function TransactionList() {
         ) : (
           groups.map(([date, txs]) => (
             <div key={date}>
-              <p className="text-xs font-medium text-gray-400 mb-1 px-1">
+              <p className="text-xs font-semibold text-gray-400 dark:text-slate-600 uppercase tracking-wide mb-1.5 px-1">
                 {formatGroupDate(date)}
               </p>
-              <Card padding="none">
+              <div className="rounded-2xl overflow-hidden border border-gray-100 dark:border-white/[0.07]">
                 {txs.map((tx, i) => (
                   <div key={tx.id}>
-                    <TransactionItem transaction={tx} onClick={handleTransactionClick} />
+                    <TransactionItem
+                      transaction={tx}
+                      onClick={handleClick}
+                      onDelete={handleDelete}
+                    />
                     {i < txs.length - 1 && <TransactionDivider />}
                   </div>
                 ))}
-              </Card>
+              </div>
             </div>
           ))
         )}
@@ -68,8 +77,6 @@ export function TransactionList() {
     </div>
   )
 }
-
-// ─── Helpers ──────────────────────────────────────────────────────────────────
 
 function groupByDate(transactions: Transaction[]): Record<string, Transaction[]> {
   const groups: Record<string, Transaction[]> = {}
@@ -85,7 +92,6 @@ function formatGroupDate(date: string): string {
   const today = new Date()
   const yesterday = new Date(today)
   yesterday.setDate(today.getDate() - 1)
-
   if (format(d, 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd')) return 'Today'
   if (format(d, 'yyyy-MM-dd') === format(yesterday, 'yyyy-MM-dd')) return 'Yesterday'
   return format(d, 'EEEE, d MMM')
