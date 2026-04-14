@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import { cn } from '@/lib/utils'
+import { haptics } from '@/lib/haptics'
 
 const NAV_ITEMS = [
   {
@@ -61,6 +62,7 @@ export function BottomNav() {
             key={to}
             to={to}
             end={to === '/'}
+            onClick={() => haptics.light()}
             className={({ isActive }) =>
               cn(
                 'flex flex-col items-center justify-center gap-0.5 min-w-[48px] py-1 rounded-xl transition-colors',
