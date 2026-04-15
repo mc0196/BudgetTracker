@@ -26,7 +26,7 @@ export function TransactionFiltersBar({ filters, onChange }: TransactionFiltersP
   }
 
   return (
-    <div className="space-y-3 px-4 py-3 bg-white dark:bg-[#1a1a28] border-b border-gray-100 dark:border-white/[0.08]">
+    <div className="space-y-3 px-4 pb-3">
       {/* Search */}
       <div className="relative">
         <svg

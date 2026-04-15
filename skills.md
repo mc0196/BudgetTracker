@@ -150,6 +150,97 @@ type CategoryMapping = {
 
 ---
 
+## Frontend Design Skill
+
+### Design Language
+
+* **Style:** Clean, minimal, financial-grade — inspired by Revolut, N26, Monzo
+* **Mood:** Confident, trustworthy, modern — never playful or cluttered
+* **Density:** Comfortable — enough whitespace to breathe, not so much it wastes space
+
+### Color System (Tailwind tokens — dark mode priority)
+
+* **Background layers:** `#0b0b13` (page) → `#13131e` (card) → `#1a1a28` (header/nav)
+* **Income:** `text-income` / `text-income-bright` (dark) — green tones
+* **Expense:** `text-expense` / `text-expense-bright` (dark) — red tones
+* **Primary accent:** `primary-500` (violet/indigo) — CTAs, active states, highlights
+* **Text hierarchy:** `slate-100` → `slate-300` → `slate-500` → `slate-600`
+* **Borders:** `white/[0.07]` on cards, `white/[0.08]` on headers/dividers
+
+### Typography
+
+* **Headings:** `font-bold`, `text-xl` max on mobile headers
+* **Body:** `text-sm` standard, `text-xs` for metadata/labels
+* **Numbers/amounts:** always `tabular-nums font-semibold`
+* **Labels/tags:** `uppercase tracking-wide text-xs font-medium`
+
+### Spacing & Layout
+
+* Page padding: `px-4`
+* Card padding: `p-4` (md), `p-3` (sm) via `Card` component
+* Vertical rhythm: `space-y-3` between cards, `space-y-4` inside cards
+* Safe area: always use `pt-safe` on full-screen pages, `pb-[env(safe-area-inset-bottom)]` on nav
+
+### Cards & Surfaces
+
+* Use `Card` component for all surfaces — never raw `div` with manual shadow
+* Rounded: `rounded-2xl` for cards, `rounded-xl` for inputs/buttons, `rounded-full` for badges/avatars
+* Elevation: `shadow-sm` light mode only — dark mode uses border contrast instead
+
+### Interactive Elements
+
+* Buttons: `rounded-2xl py-3 px-4 text-sm font-semibold` for primary actions
+* Primary CTA: `bg-primary-500 text-white`
+* Destructive: `bg-expense text-white` or `text-expense` on subtle bg
+* Touch targets: minimum `44px` height/width
+* Press feedback: `press-scale` utility + `active:brightness-95`
+* Haptics: `haptics.light()` on navigation/tap, `haptics.success()` on confirm, `haptics.error()` on delete
+
+### Icons & Imagery
+
+* Use inline SVG for nav and action icons — no external icon library
+* Category icons: emoji in a `w-10 h-10 rounded-full` colored badge
+* Income badge bg: `bg-income-light dark:bg-income-subtle`
+* Expense badge bg: `bg-expense-light dark:bg-expense-subtle`
+
+### Motion & Transitions
+
+* Prefer `transition-colors` for color changes
+* Spring easing for swipe/gesture: `cubic-bezier(0.16, 1, 0.3, 1)`
+* Skeleton loaders instead of spinners for content areas
+* Entrance animations: `slideDown` (toasts), `scaleIn` (modals), `fadeIn` (pages)
+
+### Forms & Inputs
+
+* Input style: `rounded-xl border border-gray-200 dark:border-white/[0.1] bg-white dark:bg-white/[0.04]`
+* Focus ring: `focus:border-primary-400 focus:outline-none`
+* Placeholder: `text-gray-400 dark:placeholder:text-slate-600`
+* Currency prefix: absolute-positioned `€` inside input, `pl-7`
+
+### Empty & Loading States
+
+* Empty: centered icon (emoji, large) + title `text-base font-semibold` + description `text-sm text-slate-400`
+* Loading: `SkeletonTransactionRow` / `SkeletonMonthlyOverview` — never raw spinners in content areas
+* Error: subtle red badge with message + retry link
+
+### Dark Mode Rules
+
+* Dark mode is the primary design target — light mode is secondary
+* Never use `bg-white` on full-page backgrounds in dark — use the `#0b0b13` / `#13131e` scale
+* Always pair every light class with a `dark:` variant
+* Recharts tooltips: must use `contentStyle` with dark bg when `isDark` is true
+
+### Anti-Patterns (FORBIDDEN)
+
+* No gradient backgrounds unless for hero/hero-stat cards
+* No shadows in dark mode (use border contrast)
+* No more than 2 font sizes on a single card
+* No centered text in list items
+* No full-width modals — use bottom sheets or inline flows
+* No emoji as primary nav icons
+
+---
+
 ## Performance Strategy
 
 * Use memoization (`useMemo`, `useCallback`) when needed

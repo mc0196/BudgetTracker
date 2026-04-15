@@ -3,15 +3,27 @@
 @tailwind utilities;
 
 @layer base {
-  /* Smooth scrolling & better font rendering on iOS */
+  /* Smooth scrolling & better font rendering on iOS/Mac */
   html {
     -webkit-tap-highlight-color: transparent;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   /* Prevent over-scroll bounce on the root */
   body {
     overscroll-behavior: none;
+  }
+
+  /* GPU-accelerated smooth scroll on the main container */
+  main {
+    /* Momentum scroll on iOS Safari */
+    -webkit-overflow-scrolling: touch;
+    /* Promote to own layer for smooth compositing */
+    will-change: scroll-position;
+    /* Reserve scrollbar gutter to prevent layout shift on desktop */
+    scrollbar-gutter: stable;
   }
 
   /* Date input styling */

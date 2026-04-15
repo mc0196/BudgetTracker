@@ -2,16 +2,14 @@ import { useNavigate } from 'react-router-dom'
 import { TransactionItem, TransactionDivider } from '@/components/TransactionItem'
 import { EmptyState } from '@/components/EmptyState'
 import { SkeletonTransactionRow } from '@/components/Skeleton'
-import { TransactionFiltersBar } from './TransactionFilters'
-import { useFilteredTransactions } from '@/hooks/useTransactions'
-import { useTransactionMutations } from '@/hooks/useTransactions'
+import { useFilteredTransactions, useTransactionMutations } from '@/hooks/useTransactions'
 import { useUIStore } from '@/store'
 import { format, parseISO } from 'date-fns'
 import type { Transaction } from '@/types'
 
 export function TransactionList() {
   const navigate = useNavigate()
-  const { transactionFilters, setTransactionFilters, showToast } = useUIStore()
+  const { transactionFilters, showToast } = useUIStore()
   const transactions = useFilteredTransactions(transactionFilters)
   const { remove } = useTransactionMutations()
 
@@ -43,8 +41,6 @@ export function TransactionList() {
 
   return (
     <div>
-      <TransactionFiltersBar filters={transactionFilters} onChange={setTransactionFilters} />
-
       <div className="px-4 py-3 space-y-3">
         {groups.length === 0 ? (
           <EmptyState

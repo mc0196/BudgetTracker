@@ -1,4 +1,5 @@
 import { useMonthlyStats } from '@/hooks/useAnalytics'
+import { useCountUp } from '@/hooks/useCountUp'
 import { formatCurrency } from '@/lib/utils'
 import { SkeletonMonthlyOverview } from '@/components/Skeleton'
 
@@ -11,29 +12,40 @@ export function MonthlyOverview({ month }: MonthlyOverviewProps) {
 
   if (!stats) return <SkeletonMonthlyOverview />
 
+  return <MonthlyOverviewInner stats={stats} />
+}
+
+interface Stats {
+  netBalance: number
+  totalIncome: number
+  totalExpenses: number
+}
+
+/** Separated so hooks always run with real values (no conditional hook calls) */
+function MonthlyOverviewInner({ stats }: { stats: Stats }) {
+  const animatedBalance  = useCountUp(Math.abs(stats.netBalance))
+  const animatedIncome   = useCountUp(stats.totalIncome, 600)
+  const animatedExpenses = useCountUp(stats.totalExpenses, 650)
+
   const isPositive = stats.netBalance >= 0
+
+  const balanceColor = isPositive
+    ? 'text-income-dark dark:text-income-bright'
+    : 'text-expense-dark dark:text-expense-bright'
+
+  const heroBg = isPositive
+    ? 'bg-income-light dark:bg-income-subtle'
+    : 'bg-expense-light dark:bg-expense-subtle'
 
   return (
     <div className="space-y-3 animate-fade-in">
       {/* Balance hero */}
-      <div className={`rounded-3xl px-5 py-5 ${
-        isPositive
-          ? 'bg-income-light dark:bg-income-subtle'
-          : 'bg-expense-light dark:bg-expense-subtle'
-      }`}>
-        <p className={`text-[11px] font-semibold uppercase tracking-widest mb-2 opacity-60 ${
-          isPositive
-            ? 'text-income-dark dark:text-income-bright'
-            : 'text-expense-dark dark:text-expense-bright'
-        }`}>
+      <div className={`rounded-3xl px-5 py-5 ${heroBg}`}>
+        <p className={`text-[11px] font-semibold uppercase tracking-widest mb-2 opacity-60 ${balanceColor}`}>
           Balance
         </p>
-        <p className={`text-4xl font-bold tabular-nums ${
-          isPositive
-            ? 'text-income-dark dark:text-income-bright'
-            : 'text-expense-dark dark:text-expense-bright'
-        }`}>
-          {isPositive ? '+' : ''}{formatCurrency(stats.netBalance)}
+        <p className={`text-4xl font-bold tabular-nums ${balanceColor}`}>
+          {isPositive ? '+' : '-'}{formatCurrency(animatedBalance)}
         </p>
       </div>
 
@@ -44,7 +56,7 @@ export function MonthlyOverview({ month }: MonthlyOverviewProps) {
             Income
           </p>
           <p className="text-2xl font-bold tabular-nums text-income-dark dark:text-income-bright">
-            +{formatCurrency(stats.totalIncome)}
+            +{formatCurrency(animatedIncome)}
           </p>
         </div>
         <div className="rounded-2xl px-4 py-4 bg-expense-light dark:bg-expense-subtle">
@@ -52,7 +64,7 @@ export function MonthlyOverview({ month }: MonthlyOverviewProps) {
             Expenses
           </p>
           <p className="text-2xl font-bold tabular-nums text-expense-dark dark:text-expense-bright">
-            -{formatCurrency(stats.totalExpenses)}
+            -{formatCurrency(animatedExpenses)}
           </p>
         </div>
       </div>
