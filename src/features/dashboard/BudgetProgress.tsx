@@ -50,7 +50,7 @@ export function BudgetProgress({ month }: BudgetProgressProps) {
                 {formatCurrency(progress.spent)} / {formatCurrency(progress.limit)}
               </span>
             </div>
-            <ProgressBar value={progress.percentage} variant="expense" size="md" />
+            <ProgressBar value={progress.percentage} variant="expense" size="md" showLabel />
             {progress.isOver && (
               <p className="mt-1 text-xs text-expense dark:text-expense-bright font-medium">
                 Over budget by {formatCurrency(progress.spent - progress.limit)}

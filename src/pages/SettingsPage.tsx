@@ -24,20 +24,20 @@ export function SettingsPage() {
 
   return (
     <div>
-      <div className="px-4 py-4 bg-white dark:bg-[#1a1a28] border-b border-gray-100 dark:border-white/[0.08]">
+      <div className="sticky top-0 z-10 px-4 py-4 bg-white/90 dark:bg-[#1a1a28]/90 backdrop-blur-xl border-b border-gray-100 dark:border-white/[0.08]">
         <h1 className="text-xl font-bold text-gray-900 dark:text-slate-100">Settings</h1>
       </div>
 
-      {/* Tab bar */}
-      <div className="flex border-b border-gray-100 dark:border-white/[0.08] bg-white dark:bg-[#1a1a28] overflow-x-auto">
+      {/* Tab bar — scrollable pills */}
+      <div className="flex gap-2 overflow-x-auto px-4 py-3 scrollbar-hide bg-white dark:bg-[#1a1a28] border-b border-gray-100 dark:border-white/[0.08]">
         {TABS.map(t => (
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`flex-1 py-3 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${
+            className={`flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-200 ${
               tab === t.id
-                ? 'border-primary-500 text-primary-600 dark:text-primary-400'
-                : 'border-transparent text-gray-500 dark:text-slate-500'
+                ? 'bg-primary-500 text-white shadow-sm shadow-primary-500/30'
+                : 'bg-gray-100 dark:bg-white/[0.07] text-gray-500 dark:text-slate-500'
             }`}
           >
             {t.label}

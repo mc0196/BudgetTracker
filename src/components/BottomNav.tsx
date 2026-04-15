@@ -55,8 +55,8 @@ const NAV_ITEMS = [
 
 export function BottomNav() {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/90 dark:bg-black/70 dark:backdrop-blur-2xl border-t border-gray-100 dark:border-white/[0.08] pb-[env(safe-area-inset-bottom)]">
-      <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-1">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white/80 dark:bg-[#0b0b13]/80 backdrop-blur-2xl border-t border-gray-100 dark:border-white/[0.08] pb-[env(safe-area-inset-bottom)]">
+      <div className="flex items-center justify-around h-16 max-w-lg mx-auto px-2">
         {NAV_ITEMS.map(({ to, label, icon }) => (
           <NavLink
             key={to}
@@ -65,12 +65,12 @@ export function BottomNav() {
             onClick={() => haptics.light()}
             className={({ isActive }) =>
               cn(
-                'flex flex-col items-center justify-center gap-0.5 min-w-[48px] py-1 rounded-xl transition-colors',
+                'flex flex-col items-center justify-center gap-0.5 min-w-[52px] px-2 py-1.5 rounded-2xl transition-all duration-200',
                 to === '/add'
                   ? 'relative'
                   : isActive
-                  ? 'text-primary-600 dark:text-primary-400'
-                  : 'text-gray-400 dark:text-slate-600 hover:text-gray-600 dark:hover:text-slate-400',
+                  ? 'text-primary-600 dark:text-primary-400 bg-primary-50 dark:bg-primary-400/[0.12]'
+                  : 'text-gray-400 dark:text-slate-600',
               )
             }
           >
@@ -79,15 +79,13 @@ export function BottomNav() {
                 {icon(isActive)}
                 {to !== '/add' && (
                   <span className={cn(
-                    'text-[10px] font-medium leading-none',
-                    isActive ? 'text-primary-600 dark:text-primary-400' : 'text-gray-400 dark:text-slate-600',
+                    'text-[10px] font-semibold leading-none',
+                    isActive
+                      ? 'text-primary-600 dark:text-primary-400'
+                      : 'text-gray-400 dark:text-slate-600',
                   )}>
                     {label}
                   </span>
-                )}
-                {/* Active dot indicator */}
-                {to !== '/add' && isActive && (
-                  <span className="absolute -bottom-0 w-1 h-1 rounded-full bg-primary-500 dark:bg-primary-400" />
                 )}
               </>
             )}
