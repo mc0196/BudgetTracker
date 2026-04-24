@@ -1,8 +1,8 @@
 import { Card } from '@/components/Card'
 import { ProgressBar } from '@/components/ProgressBar'
+import { PrivateAmount } from '@/components/PrivateAmount'
 import { EmptyState } from '@/components/EmptyState'
 import { useBudgetProgress } from '@/hooks/useBudget'
-import { formatCurrency } from '@/lib/utils'
 import { Link } from 'react-router-dom'
 
 interface BudgetProgressProps {
@@ -42,23 +42,19 @@ export function BudgetProgress({ month }: BudgetProgressProps) {
               <span className="text-sm font-medium text-gray-700 dark:text-slate-300">
                 {budget.category ?? 'Total'}
               </span>
-              <span
-                className={`text-sm font-semibold tabular-nums ${
-                  progress.isOver ? 'text-expense dark:text-expense-bright' : 'text-gray-600 dark:text-slate-400'
-                }`}
-              >
-                {formatCurrency(progress.spent)} / {formatCurrency(progress.limit)}
+              <span className={`text-sm font-semibold ${progress.isOver ? 'text-expense dark:text-expense-bright' : 'text-gray-600 dark:text-slate-400'}`}>
+                <PrivateAmount value={progress.spent} /> / <PrivateAmount value={progress.limit} />
               </span>
             </div>
             <ProgressBar value={progress.percentage} variant="expense" size="md" showLabel />
             {progress.isOver && (
               <p className="mt-1 text-xs text-expense dark:text-expense-bright font-medium">
-                Over budget by {formatCurrency(progress.spent - progress.limit)}
+                Over budget by <PrivateAmount value={progress.spent - progress.limit} />
               </p>
             )}
             {!progress.isOver && (
               <p className="mt-1 text-xs text-gray-400 dark:text-slate-500">
-                {formatCurrency(progress.remaining)} remaining
+                <PrivateAmount value={progress.remaining} /> remaining
               </p>
             )}
           </div>

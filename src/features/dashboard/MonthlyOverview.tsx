@@ -1,7 +1,10 @@
 import { useMonthlyStats } from '@/hooks/useAnalytics'
 import { useCountUp } from '@/hooks/useCountUp'
+import { useUIStore } from '@/store'
 import { formatCurrency } from '@/lib/utils'
 import { SkeletonMonthlyOverview } from '@/components/Skeleton'
+
+const MASK = '••••'
 
 interface MonthlyOverviewProps {
   month: string
@@ -26,6 +29,7 @@ function MonthlyOverviewInner({ stats }: { stats: Stats }) {
   const animatedBalance  = useCountUp(Math.abs(stats.netBalance))
   const animatedIncome   = useCountUp(stats.totalIncome, 600)
   const animatedExpenses = useCountUp(stats.totalExpenses, 650)
+  const privacyMode = useUIStore(s => s.privacyMode)
 
   const isPositive = stats.netBalance >= 0
 
@@ -45,7 +49,7 @@ function MonthlyOverviewInner({ stats }: { stats: Stats }) {
           Balance
         </p>
         <p className={`text-4xl font-bold tabular-nums ${balanceColor}`}>
-          {isPositive ? '+' : '-'}{formatCurrency(animatedBalance)}
+          {privacyMode ? MASK : `${isPositive ? '+' : '-'}${formatCurrency(animatedBalance)}`}
         </p>
       </div>
 
@@ -56,7 +60,7 @@ function MonthlyOverviewInner({ stats }: { stats: Stats }) {
             Income
           </p>
           <p className="text-2xl font-bold tabular-nums text-income-dark dark:text-income-bright">
-            +{formatCurrency(animatedIncome)}
+            {privacyMode ? MASK : `+${formatCurrency(animatedIncome)}`}
           </p>
         </div>
         <div className="rounded-2xl px-4 py-4 bg-expense-light dark:bg-expense-subtle">
@@ -64,7 +68,7 @@ function MonthlyOverviewInner({ stats }: { stats: Stats }) {
             Expenses
           </p>
           <p className="text-2xl font-bold tabular-nums text-expense-dark dark:text-expense-bright">
-            -{formatCurrency(animatedExpenses)}
+            {privacyMode ? MASK : `-${formatCurrency(animatedExpenses)}`}
           </p>
         </div>
       </div>

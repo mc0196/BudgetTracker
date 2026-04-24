@@ -10,6 +10,10 @@ import { currentMonth } from '@/lib/utils'
 import type { TransactionFilters } from '@/types'
 
 interface UIState {
+  /** Hides all monetary amounts behind •••• */
+  privacyMode: boolean
+  togglePrivacyMode: () => void
+
   /** Currently viewed month, 'YYYY-MM' */
   selectedMonth: string
   setSelectedMonth: (month: string) => void
@@ -36,6 +40,9 @@ interface UIState {
 export const useUIStore = create<UIState>()(
   persist(
     (set) => ({
+      privacyMode: false,
+      togglePrivacyMode: () => set((s) => ({ privacyMode: !s.privacyMode })),
+
       selectedMonth: currentMonth(),
       setSelectedMonth: (month) => set({ selectedMonth: month }),
 
@@ -60,7 +67,10 @@ export const useUIStore = create<UIState>()(
     {
       name: 'budget-tracker-ui',
       // Only persist the selected month between sessions
-      partialize: (state) => ({ selectedMonth: state.selectedMonth }),
+      partialize: (state) => ({
+        selectedMonth: state.selectedMonth,
+        privacyMode: state.privacyMode,
+      }),
     },
   ),
 )

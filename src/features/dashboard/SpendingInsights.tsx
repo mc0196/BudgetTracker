@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { subMonths, format } from 'date-fns'
 import { useMonthlyStats, useCategoryStats, useMonthSeries } from '@/hooks/useAnalytics'
 import { useBudgetProgress } from '@/hooks/useBudget'
+import { useUIStore } from '@/store'
 import { formatCurrency } from '@/lib/utils'
 
 interface SpendingInsightsProps {
@@ -19,6 +20,8 @@ export function SpendingInsights({ month }: SpendingInsightsProps) {
   const categoryStats = useCategoryStats(month)
   const budgetProgress = useBudgetProgress(month)
   const series        = useMonthSeries(2)
+
+  const privacyMode = useUIStore(s => s.privacyMode)
 
   const insights = useMemo<Insight[]>(() => {
     if (!stats) return []
@@ -99,7 +102,7 @@ export function SpendingInsights({ month }: SpendingInsightsProps) {
     return list.slice(0, 3)
   }, [stats, categoryStats, budgetProgress, series, month])
 
-  if (insights.length === 0) return null
+  if (insights.length === 0 || privacyMode) return null
 
   const colorClasses: Record<Insight['color'], string> = {
     green: 'bg-income-light dark:bg-income-subtle text-income-dark dark:text-income-bright',
