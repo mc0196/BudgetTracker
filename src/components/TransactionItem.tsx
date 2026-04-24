@@ -1,7 +1,8 @@
 import { useRef, useState } from 'react'
-import { formatCurrency, truncate } from '@/lib/utils'
+import { truncate } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 import { haptics } from '@/lib/haptics'
+import { PrivateAmount } from '@/components/PrivateAmount'
 import type { Transaction } from '@/types'
 
 const CATEGORY_ICONS: Record<string, string> = {
@@ -157,14 +158,16 @@ export function TransactionItem({ transaction, onClick, onDelete }: TransactionI
 
         {/* Amount & date */}
         <div className="flex-shrink-0 text-right">
-          <p className={cn(
-            'text-sm font-semibold tabular-nums',
-            isIncome
-              ? 'text-income dark:text-income-bright'
-              : 'text-expense dark:text-expense-bright',
-          )}>
-            {isIncome ? '+' : '-'}{formatCurrency(amount)}
-          </p>
+          <PrivateAmount
+            value={amount}
+            prefix={isIncome ? '+' : '-'}
+            className={cn(
+              'text-sm font-semibold',
+              isIncome
+                ? 'text-income dark:text-income-bright'
+                : 'text-expense dark:text-expense-bright',
+            )}
+          />
           <p className="text-xs text-gray-400 dark:text-slate-500">{dateLabel}</p>
         </div>
       </button>

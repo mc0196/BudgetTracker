@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { useTransaction, useTransactionMutations } from '@/hooks/useTransactions'
 import { useMacroCategories } from '@/hooks/useCategories'
 import { useUIStore } from '@/store'
-import { formatCurrency } from '@/lib/utils'
+import { PrivateAmount } from '@/components/PrivateAmount'
 import { format, parseISO } from 'date-fns'
 import { PageLoader } from '@/components/LoadingSpinner'
 import { Card } from '@/components/Card'
@@ -145,13 +145,15 @@ export function TransactionDetailPage() {
             </div>
           ) : (
             <>
-              <p className={`text-4xl font-bold tabular-nums ${
-                isIncome
-                  ? 'text-income-dark dark:text-income-bright'
-                  : 'text-expense-dark dark:text-expense-bright'
-              }`}>
-                {isIncome ? '+' : '-'}{formatCurrency(transaction.amount)}
-              </p>
+              <PrivateAmount
+                value={transaction.amount}
+                prefix={isIncome ? '+' : '-'}
+                className={`text-4xl font-bold ${
+                  isIncome
+                    ? 'text-income-dark dark:text-income-bright'
+                    : 'text-expense-dark dark:text-expense-bright'
+                }`}
+              />
               <p className="text-sm text-gray-500 dark:text-slate-400 mt-1">{dateLabel}</p>
             </>
           )}
