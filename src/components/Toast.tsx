@@ -20,15 +20,20 @@ const ICONS = {
 }
 
 const TYPE_CLASSES = {
-  success: 'bg-[#132b1e] border-income/25 text-income-bright',
-  error:   'bg-[#2b1313] border-expense/25 text-expense-bright',
-  info:    'bg-[#16161f] border-white/[0.1] text-slate-200',
+  success: 'bg-income-light border-income/25 text-income-dark dark:bg-[#132b1e] dark:text-income-bright',
+  error:   'bg-expense-light border-expense/25 text-expense-dark dark:bg-[#2b1313] dark:text-expense-bright',
+  info:    'bg-white border-gray-200 text-gray-700 dark:bg-[#16161f] dark:border-white/[0.1] dark:text-slate-200',
 }
 
 export function Toast() {
   const { toast, clearToast } = useUIStore()
 
   if (!toast) return null
+
+  const handleAction = () => {
+    toast.action?.onAction()
+    clearToast()
+  }
 
   return (
     <div className="fixed top-0 left-0 right-0 z-[100] flex justify-center px-4 pt-[calc(env(safe-area-inset-top)+12px)] pointer-events-none animate-slide-down">
@@ -38,13 +43,22 @@ export function Toast() {
           'shadow-2xl backdrop-blur-2xl pointer-events-auto w-full max-w-sm',
           TYPE_CLASSES[toast.type],
         )}
-        role="alert"
+        role="status"
+        aria-live="polite"
       >
         {ICONS[toast.type]}
         <span className="flex-1">{toast.message}</span>
+        {toast.action && (
+          <button
+            onClick={handleAction}
+            className="flex-shrink-0 px-3 py-1.5 -my-1 rounded-xl text-sm font-bold bg-black/[0.06] dark:bg-white/[0.1] hover:bg-black/[0.1] dark:hover:bg-white/[0.16] transition-colors"
+          >
+            {toast.action.label}
+          </button>
+        )}
         <button
           onClick={clearToast}
-          className="flex-shrink-0 opacity-50 hover:opacity-100 transition-opacity p-0.5"
+          className="flex-shrink-0 opacity-50 hover:opacity-100 transition-opacity p-2 -m-1.5"
           aria-label="Dismiss"
         >
           <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">

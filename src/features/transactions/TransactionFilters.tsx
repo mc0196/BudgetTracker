@@ -50,30 +50,37 @@ export function TransactionFiltersBar({ filters, onChange }: TransactionFiltersP
       </div>
 
       {/* Type filter */}
-      <div className="flex gap-2">
-        {(['all', 'income', 'expense'] as const).map(t => (
-          <button
-            key={t}
-            onClick={() => setType(t === 'all' ? undefined : t)}
-            className={cn(
-              'flex-1 py-1.5 rounded-xl text-xs font-medium transition-colors',
-              (t === 'all' && !filters.type) || filters.type === t
-                ? 'bg-primary-500 text-white'
-                : 'bg-gray-100 dark:bg-white/[0.06] text-gray-500 dark:text-slate-500',
-            )}
-          >
-            {t.charAt(0).toUpperCase() + t.slice(1)}
-          </button>
-        ))}
+      <div role="group" aria-label="Filter by type" className="flex gap-2">
+        {(['all', 'income', 'expense'] as const).map(t => {
+          const isActive = (t === 'all' && !filters.type) || filters.type === t
+          return (
+            <button
+              key={t}
+              onClick={() => setType(t === 'all' ? undefined : t)}
+              aria-pressed={isActive}
+              aria-label={t === 'all' ? 'All types' : t.charAt(0).toUpperCase() + t.slice(1)}
+              className={cn(
+                'flex-1 min-h-[44px] rounded-xl text-xs font-medium transition-colors',
+                isActive
+                  ? 'bg-primary-500 text-white'
+                  : 'bg-gray-100 dark:bg-white/[0.06] text-gray-500 dark:text-slate-500',
+              )}
+            >
+              {t.charAt(0).toUpperCase() + t.slice(1)}
+            </button>
+          )
+        })}
       </div>
 
       {/* Category filter */}
       {categories && categories.length > 0 && (
-        <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+        <div role="group" aria-label="Filter by category" className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
           <button
             onClick={() => setCategory(undefined)}
+            aria-pressed={!filters.category}
+            aria-label="All categories"
             className={cn(
-              'flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors',
+              'flex-shrink-0 px-3 min-h-[36px] rounded-full text-xs font-medium transition-colors',
               !filters.category
                 ? 'bg-primary-500 text-white'
                 : 'bg-gray-100 dark:bg-white/[0.06] text-gray-500 dark:text-slate-500',
@@ -85,8 +92,10 @@ export function TransactionFiltersBar({ filters, onChange }: TransactionFiltersP
             <button
               key={cat}
               onClick={() => setCategory(cat === filters.category ? undefined : cat)}
+              aria-pressed={filters.category === cat}
+              aria-label={`Filter by ${cat}`}
               className={cn(
-                'flex-shrink-0 px-3 py-1 rounded-full text-xs font-medium transition-colors whitespace-nowrap',
+                'flex-shrink-0 px-3 min-h-[36px] rounded-full text-xs font-medium transition-colors whitespace-nowrap',
                 filters.category === cat
                   ? 'bg-primary-500 text-white'
                   : 'bg-gray-100 dark:bg-white/[0.06] text-gray-500 dark:text-slate-500',

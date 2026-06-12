@@ -19,14 +19,6 @@ export function ProgressBar({
 }: ProgressBarProps) {
   const pct = Math.min((value / max) * 100, 100)
 
-  // Auto-switch to warning color when over 80%
-  const effectiveVariant =
-    variant === 'expense' && pct >= 100
-      ? 'warning'
-      : variant === 'expense' && pct >= 80
-      ? 'warning'
-      : variant
-
   const trackClasses = {
     default: 'bg-primary-500',
     income: 'bg-income dark:bg-income-bright',
@@ -46,7 +38,7 @@ export function ProgressBar({
         <div
           className={cn(
             'h-full rounded-full transition-all duration-500 ease-out',
-            trackClasses[effectiveVariant],
+            trackClasses[variant],
           )}
           style={{ width: `${pct}%` }}
           role="progressbar"

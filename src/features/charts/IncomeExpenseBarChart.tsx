@@ -1,15 +1,25 @@
 import ReactECharts from 'echarts-for-react'
-import { useMonthSeries } from '@/hooks/useAnalytics'
+import { useMonthlySeriesForDateRange } from '@/hooks/useAnalytics'
 import { formatCompact, formatCurrency, monthLabel } from '@/lib/utils'
 import { EmptyState } from '@/components/EmptyState'
+import { Skeleton } from '@/components/Skeleton'
 import { useIsDark } from '@/hooks/useIsDark'
+import type { DateRange } from '@/types'
 
-export function IncomeExpenseBarChart() {
-  const series = useMonthSeries(6)
+interface IncomeExpenseBarChartProps {
+  range: DateRange
+}
+
+export function IncomeExpenseBarChart({ range }: IncomeExpenseBarChartProps) {
+  const series = useMonthlySeriesForDateRange(range)
   const isDark = useIsDark()
 
-  if (!series || series.length === 0) {
-    return <EmptyState icon="📊" title="No data yet" />
+  if (series === undefined) {
+    return <Skeleton className="h-[200px] rounded-2xl" />
+  }
+
+  if (series.length === 0 || series.every(s => s.transactionCount === 0)) {
+    return <EmptyState icon="📊" title="No data yet" description="Import or add transactions to compare months" />
   }
 
   const data = series.map(s => ({
@@ -31,6 +41,7 @@ export function IncomeExpenseBarChart() {
     grid: { top: 8, right: 8, bottom: 24, left: 44, containLabel: false },
     tooltip: {
       trigger: 'axis',
+      confine: true,
       axisPointer: { type: 'shadow', shadowStyle: { color: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)' } },
       backgroundColor: tooltipBg,
       borderColor: tooltipBorder,

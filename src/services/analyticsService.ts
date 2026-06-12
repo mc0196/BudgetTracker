@@ -3,7 +3,7 @@
  * All functions take arrays of Transaction objects and return aggregates.
  */
 
-import { format, parseISO, eachMonthOfInterval, startOfMonth, endOfMonth } from 'date-fns'
+import { format, parseISO, eachMonthOfInterval, startOfMonth, endOfMonth, startOfISOWeek } from 'date-fns'
 import type { Transaction, MonthlyStats, CategoryStats, DailyStats } from '@/types'
 import { categoryColor } from '@/lib/utils'
 
@@ -136,6 +136,22 @@ export function computeDailyStats(
   return Array.from(byDate.values()).sort((a, b) => a.date.localeCompare(b.date))
 }
 
+/**
+ * Aggregates daily stats into ISO-week buckets (keyed by the Monday of each week).
+ * Used to keep long-range time series readable on small screens.
+ */
+export function aggregateDailyToWeekly(stats: DailyStats[]): DailyStats[] {
+  const byWeek = new Map<string, DailyStats>()
+  for (const day of stats) {
+    const key = format(startOfISOWeek(parseISO(day.date)), 'yyyy-MM-dd')
+    const entry = byWeek.get(key) ?? { date: key, income: 0, expenses: 0 }
+    entry.income += day.income
+    entry.expenses += day.expenses
+    byWeek.set(key, entry)
+  }
+  return Array.from(byWeek.values()).sort((a, b) => a.date.localeCompare(b.date))
+}
+
 // ─── Monthly series for bar chart ────────────────────────────────────────────
 
 /**
@@ -155,81 +171,4 @@ export function computeMonthlySeriesForRange(
   return months.map(month => computeStatsForMonth(transactions, month))
 }
 
-// ─── Budget progress ──────────────────────────────────────────────────────────
-
-/**
- * Returns how much of a budget has been consumed.
- * @returns { spent, limit, percentage, remaining, isOver }
- */
-export function computeBudgetProgress(
-  transactions: Transaction[],
-  month: string,
-  limit: number,
-  category?: string,
-): {
-  spent: number
-  limit: number
-  percentage: number
-  remaining: number
-  isOver: boolean
-} {
-  const monthTxs = transactions.filter(t => t.date.startsWith(month) && t.type === 'expense')
-  const filtered = category ? monthTxs.filter(t => t.mappedCategory === category) : monthTxs
-
-  const spent = filtered.reduce((s, t) => s + t.amount, 0)
-  const percentage = limit > 0 ? Math.min((spent / limit) * 100, 100) : 0
-
-  return {
-    spent,
-    limit,
-    percentage,
-    remaining: Math.max(limit - spent, 0),
-    isOver: spent > limit,
-  }
-}
-
-// ─── Recurring detection ──────────────────────────────────────────────────────
-
-interface RecurringPattern {
-  description: string
-  averageAmount: number
-  occurrences: number
-  monthlyPattern: boolean
-}
-
-/**
- * Heuristic: find transactions that appear with a similar description
- * in at least 2 different months.
- */
-export function detectRecurring(transactions: Transaction[]): RecurringPattern[] {
-  const groups = new Map<string, Transaction[]>()
-
-  for (const t of transactions) {
-    // Normalize key: lowercase, remove numbers, trim
-    const key = t.description
-      .toLowerCase()
-      .replace(/\d+/g, '')
-      .replace(/\s+/g, ' ')
-      .trim()
-      .slice(0, 40)
-    if (!groups.has(key)) groups.set(key, [])
-    groups.get(key)!.push(t)
-  }
-
-  const patterns: RecurringPattern[] = []
-  for (const [, txs] of groups) {
-    if (txs.length < 2) continue
-    const months = new Set(txs.map(t => t.date.slice(0, 7)))
-    if (months.size < 2) continue
-
-    const avg = txs.reduce((s, t) => s + t.amount, 0) / txs.length
-    patterns.push({
-      description: txs[0].description,
-      averageAmount: avg,
-      occurrences: txs.length,
-      monthlyPattern: months.size === txs.length,
-    })
-  }
-
-  return patterns.sort((a, b) => b.occurrences - a.occurrences)
-}
+// Recurring detection lives in recurringService.ts (richer cadence/stability model).

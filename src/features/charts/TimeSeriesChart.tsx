@@ -1,23 +1,27 @@
 import ReactECharts from 'echarts-for-react'
-import { useDailySeries } from '@/hooks/useAnalytics'
+import { useTimeSeriesForRange } from '@/hooks/useAnalytics'
 import { formatCompact, formatCurrency } from '@/lib/utils'
 import { EmptyState } from '@/components/EmptyState'
+import { Skeleton } from '@/components/Skeleton'
 import { useIsDark } from '@/hooks/useIsDark'
 import { format, parseISO } from 'date-fns'
+import type { DateRange } from '@/types'
 
 interface TimeSeriesChartProps {
-  month: string
+  range: DateRange
 }
 
-export function TimeSeriesChart({ month }: TimeSeriesChartProps) {
-  const series = useDailySeries(month)
+export function TimeSeriesChart({ range }: TimeSeriesChartProps) {
+  const series = useTimeSeriesForRange(range)
   const isDark = useIsDark()
 
-  if (!series || series.length === 0) {
-    return <EmptyState icon="📈" title="No data for this month" />
+  if (series === undefined) {
+    return <Skeleton className="h-[200px] rounded-2xl" />
   }
 
-  const data = series
+  const isWeekly = series.granularity === 'week'
+
+  const data = series.stats
     .filter(d => d.income > 0 || d.expenses > 0)
     .map(d => ({
       date: format(parseISO(d.date), 'd MMM'),
@@ -26,7 +30,7 @@ export function TimeSeriesChart({ month }: TimeSeriesChartProps) {
     }))
 
   if (data.length === 0) {
-    return <EmptyState icon="📈" title="No transactions this month" />
+    return <EmptyState icon="📈" title="No transactions in this period" />
   }
 
   const gridColor = isDark ? 'rgba(255,255,255,0.05)' : '#f3f4f6'
@@ -42,6 +46,7 @@ export function TimeSeriesChart({ month }: TimeSeriesChartProps) {
     grid: { top: 8, right: 8, bottom: 24, left: 44, containLabel: false },
     tooltip: {
       trigger: 'axis',
+      confine: true,
       axisPointer: {
         type: 'line',
         lineStyle: { color: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)', width: 1, type: 'dashed' },
@@ -127,6 +132,11 @@ export function TimeSeriesChart({ month }: TimeSeriesChartProps) {
           <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: '#34d399' }} />
           <span className="text-xs text-gray-500 dark:text-slate-500 font-medium">Income</span>
         </div>
+        {isWeekly && (
+          <span className="ml-auto text-[10px] font-semibold uppercase tracking-wide text-gray-400 dark:text-slate-600">
+            Weekly totals
+          </span>
+        )}
       </div>
       <ReactECharts
         option={option}

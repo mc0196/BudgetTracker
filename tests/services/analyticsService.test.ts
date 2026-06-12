@@ -3,8 +3,8 @@ import {
   sumByType,
   computeStatsForMonth,
   computeCategoryStats,
-  computeBudgetProgress,
-  detectRecurring,
+  computeDailyStats,
+  aggregateDailyToWeekly,
   computeMonthlySeriesForRange,
 } from '@/services/analyticsService'
 import type { Transaction } from '@/types'
@@ -120,77 +120,26 @@ describe('computeCategoryStats', () => {
   })
 })
 
-// ─── computeBudgetProgress ────────────────────────────────────────────────────
+// ─── aggregateDailyToWeekly ───────────────────────────────────────────────────
 
-describe('computeBudgetProgress', () => {
-  it('calculates percentage correctly', () => {
-    const txs = [makeTx({ date: '2026-04-10', amount: 500, type: 'expense' })]
-    const progress = computeBudgetProgress(txs, '2026-04', 1000)
-    expect(progress.spent).toBe(500)
-    expect(progress.percentage).toBe(50)
-    expect(progress.remaining).toBe(500)
-    expect(progress.isOver).toBe(false)
-  })
-
-  it('caps percentage at 100 when over budget', () => {
-    const txs = [makeTx({ date: '2026-04-10', amount: 1500, type: 'expense' })]
-    const progress = computeBudgetProgress(txs, '2026-04', 1000)
-    expect(progress.percentage).toBe(100)
-    expect(progress.isOver).toBe(true)
-    expect(progress.remaining).toBe(0)
-  })
-
-  it('only counts expenses, not income', () => {
-    const txs = [
-      makeTx({ date: '2026-04-10', amount: 2000, type: 'income' }),
-      makeTx({ date: '2026-04-10', amount: 200, type: 'expense' }),
-    ]
-    const progress = computeBudgetProgress(txs, '2026-04', 1000)
-    expect(progress.spent).toBe(200)
-  })
-
-  it('filters by category when specified', () => {
-    const txs = [
-      makeTx({ date: '2026-04-10', amount: 100, type: 'expense', mappedCategory: 'Food & Dining' }),
-      makeTx({ date: '2026-04-10', amount: 999, type: 'expense', mappedCategory: 'Transport' }),
-    ]
-    const progress = computeBudgetProgress(txs, '2026-04', 500, 'Food & Dining')
-    expect(progress.spent).toBe(100)
-  })
-
-  it('handles zero limit gracefully', () => {
-    const txs = [makeTx({ date: '2026-04-10', amount: 100, type: 'expense' })]
-    const progress = computeBudgetProgress(txs, '2026-04', 0)
-    expect(progress.percentage).toBe(0)
-  })
-})
-
-// ─── detectRecurring ──────────────────────────────────────────────────────────
-
-describe('detectRecurring', () => {
+describe('aggregateDailyToWeekly', () => {
   it('returns empty array for empty input', () => {
-    expect(detectRecurring([])).toEqual([])
+    expect(aggregateDailyToWeekly([])).toEqual([])
   })
 
-  it('detects transactions that appear in multiple months', () => {
+  it('groups days into ISO weeks keyed by Monday', () => {
+    // 2026-04-06 is a Monday; 2026-04-08 same week; 2026-04-13 next Monday
     const txs = [
-      makeTx({ description: 'Netflix subscription', date: '2026-01-15' }),
-      makeTx({ description: 'Netflix subscription', date: '2026-02-15' }),
-      makeTx({ description: 'Netflix subscription', date: '2026-03-15' }),
+      makeTx({ date: '2026-04-06', amount: 10 }),
+      makeTx({ date: '2026-04-08', amount: 20 }),
+      makeTx({ date: '2026-04-13', amount: 5 }),
     ]
-    const patterns = detectRecurring(txs)
-    expect(patterns.length).toBeGreaterThan(0)
-    expect(patterns[0].description).toBe('Netflix subscription')
-    expect(patterns[0].occurrences).toBe(3)
-  })
-
-  it('ignores single-month repetitions', () => {
-    const txs = [
-      makeTx({ description: 'Coffee', date: '2026-04-01' }),
-      makeTx({ description: 'Coffee', date: '2026-04-02' }),
-    ]
-    const patterns = detectRecurring(txs)
-    expect(patterns).toHaveLength(0)
+    const daily = computeDailyStats(txs, '2026-04-06', '2026-04-19')
+    const weekly = aggregateDailyToWeekly(daily)
+    expect(weekly[0].date).toBe('2026-04-06')
+    expect(weekly[0].expenses).toBe(30)
+    expect(weekly[1].date).toBe('2026-04-13')
+    expect(weekly[1].expenses).toBe(5)
   })
 })
 

@@ -6,7 +6,7 @@
 
 import * as XLSX from 'xlsx'
 import { formatDate, normalizeCategory } from '@/lib/utils'
-import type { IFileParser } from './types'
+import { yieldToUI, type IFileParser, type ParseProgressCallback } from './types'
 import type { ColumnMapping, ImportPreview, ParsedTransaction } from '@/types'
 
 function parseAmount(raw: unknown): number {
@@ -69,20 +69,30 @@ export class GenericParser implements IFileParser {
     return true
   }
 
-  async parse(file: File): Promise<ImportPreview> {
+  async parse(file: File, onProgress?: ParseProgressCallback): Promise<ImportPreview> {
     if (!this.mapping) {
       throw new Error('Column mapping required for generic parser. Call setMapping() first.')
     }
 
+    onProgress?.({ phase: 'reading', percent: 0 })
     const buffer = await file.arrayBuffer()
     const wb = XLSX.read(buffer, { type: 'array' })
     const ws = wb.Sheets[wb.SheetNames[0]]
     const rows: Record<string, unknown>[] = XLSX.utils.sheet_to_json(ws, { defval: '' })
+    onProgress?.({ phase: 'parsing', percent: 0 })
 
     const m = this.mapping
     const transactions: ParsedTransaction[] = []
 
-    for (const row of rows) {
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i]
+
+      // Report progress and let the UI repaint every 200 rows
+      if (onProgress && i % 200 === 0 && i > 0) {
+        onProgress({ phase: 'parsing', percent: (i / rows.length) * 100 })
+        await yieldToUI()
+      }
+
       const dateRaw = row[m.dateColumn]
       const date = parseDate(dateRaw)
       if (!date) continue

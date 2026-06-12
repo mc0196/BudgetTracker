@@ -100,6 +100,10 @@ export class DexieTransactionRepository implements ITransactionRepository {
     return records
   }
 
+  async restore(transactions: Transaction[]): Promise<void> {
+    await db.transactions.bulkPut(transactions)
+  }
+
   async getImportSources(): Promise<string[]> {
     const all = await db.transactions.toArray()
     const sources = new Set(all.map(t => t.importSource).filter(Boolean) as string[])

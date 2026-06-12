@@ -2,7 +2,6 @@ import { useRef } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'framer-motion'
 import { BottomNav } from './BottomNav'
-import { Toast } from './Toast'
 
 const pageVariants = {
   initial: { opacity: 0, y: 10 },
@@ -38,7 +37,6 @@ export function Layout() {
       </main>
 
       <BottomNav />
-      <Toast />
     </div>
   )
 }

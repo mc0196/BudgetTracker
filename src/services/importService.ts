@@ -5,6 +5,7 @@
 import { parserFactory } from './parsing/parserFactory'
 import { categoryService } from './categoryService'
 import { transactionRepository } from '@/db/repositories/transactionRepository'
+import type { ParseProgressCallback } from './parsing/types'
 import type { ImportPreview, ParsedTransaction, Transaction } from '@/types'
 import { formatMonth } from '@/lib/utils'
 
@@ -14,14 +15,25 @@ export interface ImportResult {
   transactions: Transaction[]
 }
 
+/** Progress of the commit step, reported in [0, 100]. */
+export interface CommitProgress {
+  phase: 'categorizing' | 'saving'
+  percent: number
+}
+
+export type CommitProgressCallback = (progress: CommitProgress) => void
+
+/** Insert in chunks so progress can be reported on large imports */
+const INSERT_CHUNK_SIZE = 200
+
 export class ImportService {
   /**
    * Step 1: Parse a file and return a preview (no DB writes).
    * The preview is shown to the user before they confirm the import.
    */
-  async preview(file: File): Promise<ImportPreview> {
+  async preview(file: File, onProgress?: ParseProgressCallback): Promise<ImportPreview> {
     const parser = await parserFactory.getParser(file)
-    return parser.parse(file)
+    return parser.parse(file, onProgress)
   }
 
   /**
@@ -31,15 +43,18 @@ export class ImportService {
   async commit(
     preview: ImportPreview,
     selectedTransactions?: ParsedTransaction[],
+    onProgress?: CommitProgressCallback,
   ): Promise<ImportResult> {
     const toImport = selectedTransactions ?? preview.transactions
 
     // Warm the category cache for fast resolution
+    onProgress?.({ phase: 'categorizing', percent: 0 })
     await categoryService.warm()
 
     // Resolve mapped categories for all transactions
     const mappings = await categoryService.batchResolve(toImport)
     const mappingMap = new Map(mappings.map(m => [m.original, m.mapped]))
+    onProgress?.({ phase: 'categorizing', percent: 100 })
 
     // Deduplicate: skip exact duplicates (same date, amount, description)
     const existing = await transactionRepository.getAll()
@@ -53,15 +68,21 @@ export class ImportService {
 
     const skipped = toImport.length - newTransactions.length
 
-    // Persist
+    // Persist in chunks so progress is visible on large files
     const importSource = `${preview.source} — ${formatMonth(new Date())}`
-    const records = await transactionRepository.bulkCreate(
-      newTransactions.map(t => ({
-        ...t,
-        mappedCategory: mappingMap.get(t.originalCategory) ?? 'Uncategorized',
-        importSource,
-      })),
-    )
+    const toInsert = newTransactions.map(t => ({
+      ...t,
+      mappedCategory: mappingMap.get(t.originalCategory) ?? 'Uncategorized',
+      importSource,
+    }))
+
+    const records: Transaction[] = []
+    onProgress?.({ phase: 'saving', percent: 0 })
+    for (let i = 0; i < toInsert.length; i += INSERT_CHUNK_SIZE) {
+      const chunk = toInsert.slice(i, i + INSERT_CHUNK_SIZE)
+      records.push(...(await transactionRepository.bulkCreate(chunk)))
+      onProgress?.({ phase: 'saving', percent: Math.min(((i + chunk.length) / Math.max(toInsert.length, 1)) * 100, 100) })
+    }
 
     return { imported: records.length, skipped, transactions: records }
   }

@@ -2,13 +2,22 @@ import { useState } from 'react'
 import { FileDropzone } from '@/features/import/FileDropzone'
 import { ImportPreview } from '@/features/import/ImportPreview'
 import { ColumnMapper } from '@/features/import/ColumnMapper'
+import { ImportProgress, type ImportProgressState } from '@/features/import/ImportProgress'
+import { CommittingScreen, DoneScreen, SupportedFormats } from '@/features/import/ImportScreens'
 import { importService } from '@/services/importService'
 import { parserFactory } from '@/services/parsing/parserFactory'
 import { genericParser } from '@/services/parsing/genericParser'
 import { useUIStore } from '@/store'
+import { haptics } from '@/lib/haptics'
+import type { ParseProgress } from '@/services/parsing/types'
 import type { ColumnMapping, ImportPreview as ImportPreviewType, ParsedTransaction } from '@/types'
 
-type ImportState = 'idle' | 'parsing' | 'needs-mapping' | 'preview' | 'done'
+type ImportState = 'idle' | 'parsing' | 'needs-mapping' | 'preview' | 'committing' | 'done'
+
+const PARSE_LABELS: Record<ParseProgress['phase'], string> = {
+  reading: 'Reading file…',
+  parsing: 'Parsing transactions…',
+}
 
 export function ImportPage() {
   const { showToast } = useUIStore()
@@ -17,9 +26,14 @@ export function ImportPage() {
   const [error, setError] = useState<string | null>(null)
   const [pendingFile, setPendingFile] = useState<File | null>(null)
   const [detectedColumns, setDetectedColumns] = useState<string[]>([])
+  const [progress, setProgress] = useState<ImportProgressState | null>(null)
+
+  const onParseProgress = (p: ParseProgress) =>
+    setProgress({ label: PARSE_LABELS[p.phase], percent: p.percent })
 
   const handleFileSelected = async (file: File) => {
     setError(null)
+    setProgress(null)
     setState('parsing')
     try {
       const parser = await parserFactory.getParser(file)
@@ -30,7 +44,7 @@ export function ImportPage() {
       }
 
       try {
-        const result = await parser.parse(file)
+        const result = await parser.parse(file, onParseProgress)
         setPreview(result)
         setState('preview')
       } catch {
@@ -39,6 +53,8 @@ export function ImportPage() {
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to parse file')
       setState('idle')
+    } finally {
+      setProgress(null)
     }
   }
 
@@ -54,22 +70,33 @@ export function ImportPage() {
 
   const handleColumnMappingConfirmed = async (mapping: ColumnMapping) => {
     if (!pendingFile) return
+    setProgress(null)
     setState('parsing')
     try {
       genericParser.setMapping(mapping)
-      const result = await genericParser.parse(pendingFile)
+      const result = await genericParser.parse(pendingFile, onParseProgress)
       setPreview(result)
       setState('preview')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to parse file with selected columns')
       setState('idle')
+    } finally {
+      setProgress(null)
     }
   }
 
   const handleConfirm = async (selected: ParsedTransaction[]) => {
     if (!preview) return
+    setProgress(null)
+    setState('committing')
     try {
-      const result = await importService.commit(preview, selected)
+      const result = await importService.commit(preview, selected, p =>
+        setProgress({
+          label: p.phase === 'categorizing' ? 'Applying categories…' : 'Saving transactions…',
+          percent: p.percent,
+        }),
+      )
+      haptics.success()
       showToast(
         `Imported ${result.imported} transactions` +
           (result.skipped > 0 ? `, ${result.skipped} skipped (duplicates)` : ''),
@@ -77,7 +104,11 @@ export function ImportPage() {
       )
       setState('done')
     } catch (err) {
+      haptics.error()
       showToast('Import failed: ' + (err instanceof Error ? err.message : 'Unknown error'), 'error')
+      setState('preview')
+    } finally {
+      setProgress(null)
     }
   }
 
@@ -87,6 +118,12 @@ export function ImportPage() {
     setError(null)
     setPendingFile(null)
     setDetectedColumns([])
+    setProgress(null)
+  }
+
+  // ── Committing step ────────────────────────────────────────────────────────
+  if (state === 'committing') {
+    return <CommittingScreen progress={progress} />
   }
 
   // ── Column mapping step ────────────────────────────────────────────────────
@@ -124,22 +161,7 @@ export function ImportPage() {
 
   // ── Done step ──────────────────────────────────────────────────────────────
   if (state === 'done') {
-    return (
-      <div className="px-4 pt-4">
-        <h1 className="text-xl font-bold text-gray-900 dark:text-slate-100 mb-6">Import</h1>
-        <div className="flex flex-col items-center gap-4 py-16 text-center">
-          <span className="text-5xl">✅</span>
-          <h2 className="text-lg font-semibold text-gray-800 dark:text-slate-200">Import complete!</h2>
-          <p className="text-sm text-gray-500 dark:text-slate-400">Your transactions have been saved.</p>
-          <button
-            onClick={reset}
-            className="px-6 py-3 rounded-2xl bg-primary-500 text-white text-sm font-semibold"
-          >
-            Import another file
-          </button>
-        </div>
-      </div>
-    )
+    return <DoneScreen onReset={reset} />
   }
 
   // ── Idle / parsing ─────────────────────────────────────────────────────────
@@ -152,6 +174,10 @@ export function ImportPage() {
         isLoading={state === 'parsing'}
       />
 
+      {state === 'parsing' && progress && (
+        <ImportProgress label={progress.label} percent={progress.percent} />
+      )}
+
       {error && (
         <div className="mt-4 p-4 rounded-2xl bg-expense-light dark:bg-expense-subtle text-expense dark:text-expense-bright text-sm">
           <p className="font-medium">Parse error</p>
@@ -160,25 +186,7 @@ export function ImportPage() {
         </div>
       )}
 
-      <div className="mt-6 space-y-3">
-        <h2 className="text-sm font-semibold text-gray-700 dark:text-slate-300">Supported formats</h2>
-        <div className="flex flex-col gap-2">
-          {[
-            { icon: '🏦', name: 'Intesa Sanpaolo', ext: 'CSV / XLS', note: 'Auto-detected' },
-            { icon: '📄', name: 'Generic CSV', ext: 'CSV', note: 'Column mapping required' },
-            { icon: '📊', name: 'Generic Excel', ext: 'XLSX / XLS', note: 'Column mapping required' },
-          ].map(f => (
-            <div key={f.name} className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-white/[0.04] rounded-xl">
-              <span className="text-2xl" aria-hidden>{f.icon}</span>
-              <div className="flex-1">
-                <p className="text-sm font-medium text-gray-800 dark:text-slate-200">{f.name}</p>
-                <p className="text-xs text-gray-400 dark:text-slate-500">{f.ext}</p>
-              </div>
-              <span className="text-xs text-income dark:text-income-bright font-medium">{f.note}</span>
-            </div>
-          ))}
-        </div>
-      </div>
+      <SupportedFormats />
     </div>
   )
 }

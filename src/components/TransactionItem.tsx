@@ -2,23 +2,9 @@ import { useRef, useState } from 'react'
 import { truncate } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 import { haptics } from '@/lib/haptics'
+import { CATEGORY_ICONS } from '@/lib/categoryIcons'
 import { PrivateAmount } from '@/components/PrivateAmount'
 import type { Transaction } from '@/types'
-
-const CATEGORY_ICONS: Record<string, string> = {
-  'Food & Dining': '🍽️',
-  'Transport':     '🚗',
-  'Shopping':      '🛍️',
-  'Housing':       '🏠',
-  'Health':        '💊',
-  'Entertainment': '🎬',
-  'Travel':        '✈️',
-  'Utilities':     '💡',
-  'Income':        '💰',
-  'Education':     '📚',
-  'Other':         '📦',
-  'Uncategorized': '❓',
-}
 
 const SWIPE_REVEAL = -72   // px to reveal delete button
 const SWIPE_DELETE = -160  // px to auto-trigger delete
@@ -26,10 +12,12 @@ const SWIPE_DELETE = -160  // px to auto-trigger delete
 interface TransactionItemProps {
   transaction: Transaction
   onClick?: (transaction: Transaction) => void
-  onDelete?: (id: string) => void
+  onDelete?: (transaction: Transaction) => void
+  /** Marks the row as an unusually large amount for its category */
+  isAnomaly?: boolean
 }
 
-export function TransactionItem({ transaction, onClick, onDelete }: TransactionItemProps) {
+export function TransactionItem({ transaction, onClick, onDelete, isAnomaly }: TransactionItemProps) {
   const { amount, type, description, mappedCategory, date } = transaction
   const isIncome = type === 'income'
 
@@ -73,7 +61,7 @@ export function TransactionItem({ transaction, onClick, onDelete }: TransactionI
     if (swipeX < SWIPE_DELETE + 20 && onDelete) {
       haptics.error()
       setSwipeX(-500)
-      setTimeout(() => onDelete(transaction.id), 180)
+      setTimeout(() => onDelete(transaction), 180)
     } else if (swipeX < SWIPE_REVEAL / 2) {
       haptics.light()
       setSwipeX(SWIPE_REVEAL)
@@ -87,7 +75,7 @@ export function TransactionItem({ transaction, onClick, onDelete }: TransactionI
   const handleDeleteTap = () => {
     haptics.error()
     setSwipeX(-500)
-    setTimeout(() => onDelete?.(transaction.id), 180)
+    setTimeout(() => onDelete?.(transaction), 180)
   }
 
   const handleItemTap = () => {
@@ -153,7 +141,17 @@ export function TransactionItem({ transaction, onClick, onDelete }: TransactionI
           <p className="text-sm font-medium text-gray-900 dark:text-slate-100 truncate">
             {truncate(description, 40)}
           </p>
-          <p className="text-xs text-gray-400 dark:text-slate-500">{mappedCategory}</p>
+          <p className="text-xs text-gray-400 dark:text-slate-500">
+            {mappedCategory}
+            {isAnomaly && (
+              <span
+                className="ml-1.5 inline-flex items-center gap-0.5 text-[10px] font-semibold text-amber-600 dark:text-amber-400"
+                title="Unusually large for this category"
+              >
+                ⚠ unusual
+              </span>
+            )}
+          </p>
         </div>
 
         {/* Amount & date */}

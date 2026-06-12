@@ -2,11 +2,16 @@ import { MonthlyOverview } from '@/features/dashboard/MonthlyOverview'
 import { BudgetProgress } from '@/features/dashboard/BudgetProgress'
 import { RecentTransactions } from '@/features/dashboard/RecentTransactions'
 import { SpendingInsights } from '@/features/dashboard/SpendingInsights'
+import { RecurringTransactions } from '@/features/dashboard/RecurringTransactions'
+import { OnboardingHero } from '@/features/dashboard/OnboardingHero'
 import { MonthPicker } from '@/components/MonthPicker'
+import { useTransactionCount } from '@/hooks/useTransactions'
 import { useUIStore } from '@/store'
 
 export function DashboardPage() {
   const { selectedMonth, privacyMode, togglePrivacyMode } = useUIStore()
+  const transactionCount = useTransactionCount()
+  const isFirstLaunch = transactionCount === 0
 
   return (
     <div>
@@ -40,19 +45,31 @@ export function DashboardPage() {
       </div>
 
       <div className="px-4 pt-4">
-        <MonthlyOverview month={selectedMonth} />
+        {isFirstLaunch ? (
+          <div className="pb-6">
+            <OnboardingHero />
+          </div>
+        ) : (
+          <>
+            <MonthlyOverview month={selectedMonth} />
 
-        <div className="mt-4">
-          <BudgetProgress month={selectedMonth} />
-        </div>
+            <div className="mt-4">
+              <BudgetProgress month={selectedMonth} />
+            </div>
 
-        <div className="mt-4">
-          <SpendingInsights month={selectedMonth} />
-        </div>
+            <div className="mt-4">
+              <SpendingInsights month={selectedMonth} />
+            </div>
 
-        <div className="mt-4 mb-6">
-          <RecentTransactions month={selectedMonth} limit={8} />
-        </div>
+            <div className="mt-4">
+              <RecurringTransactions />
+            </div>
+
+            <div className="mt-4 mb-6">
+              <RecentTransactions month={selectedMonth} limit={8} />
+            </div>
+          </>
+        )}
       </div>
     </div>
   )
