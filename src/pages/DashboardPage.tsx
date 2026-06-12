@@ -2,6 +2,7 @@ import { MonthlyOverview } from '@/features/dashboard/MonthlyOverview'
 import { BudgetProgress } from '@/features/dashboard/BudgetProgress'
 import { RecentTransactions } from '@/features/dashboard/RecentTransactions'
 import { SpendingInsights } from '@/features/dashboard/SpendingInsights'
+import { RecurringTransactions } from '@/features/dashboard/RecurringTransactions'
 import { OnboardingHero } from '@/features/dashboard/OnboardingHero'
 import { MonthPicker } from '@/components/MonthPicker'
 import { useTransactionCount } from '@/hooks/useTransactions'
@@ -58,6 +59,10 @@ export function DashboardPage() {
 
             <div className="mt-4">
               <SpendingInsights month={selectedMonth} />
+            </div>
+
+            <div className="mt-4">
+              <RecurringTransactions />
             </div>
 
             <div className="mt-4 mb-6">

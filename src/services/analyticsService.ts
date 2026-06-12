@@ -171,48 +171,4 @@ export function computeMonthlySeriesForRange(
   return months.map(month => computeStatsForMonth(transactions, month))
 }
 
-// ─── Recurring detection ──────────────────────────────────────────────────────
-
-interface RecurringPattern {
-  description: string
-  averageAmount: number
-  occurrences: number
-  monthlyPattern: boolean
-}
-
-/**
- * Heuristic: find transactions that appear with a similar description
- * in at least 2 different months.
- */
-export function detectRecurring(transactions: Transaction[]): RecurringPattern[] {
-  const groups = new Map<string, Transaction[]>()
-
-  for (const t of transactions) {
-    // Normalize key: lowercase, remove numbers, trim
-    const key = t.description
-      .toLowerCase()
-      .replace(/\d+/g, '')
-      .replace(/\s+/g, ' ')
-      .trim()
-      .slice(0, 40)
-    if (!groups.has(key)) groups.set(key, [])
-    groups.get(key)!.push(t)
-  }
-
-  const patterns: RecurringPattern[] = []
-  for (const [, txs] of groups) {
-    if (txs.length < 2) continue
-    const months = new Set(txs.map(t => t.date.slice(0, 7)))
-    if (months.size < 2) continue
-
-    const avg = txs.reduce((s, t) => s + t.amount, 0) / txs.length
-    patterns.push({
-      description: txs[0].description,
-      averageAmount: avg,
-      occurrences: txs.length,
-      monthlyPattern: months.size === txs.length,
-    })
-  }
-
-  return patterns.sort((a, b) => b.occurrences - a.occurrences)
-}
+// Recurring detection lives in recurringService.ts (richer cadence/stability model).

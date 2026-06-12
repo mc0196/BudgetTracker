@@ -5,7 +5,6 @@ import {
   computeCategoryStats,
   computeDailyStats,
   aggregateDailyToWeekly,
-  detectRecurring,
   computeMonthlySeriesForRange,
 } from '@/services/analyticsService'
 import type { Transaction } from '@/types'
@@ -141,35 +140,6 @@ describe('aggregateDailyToWeekly', () => {
     expect(weekly[0].expenses).toBe(30)
     expect(weekly[1].date).toBe('2026-04-13')
     expect(weekly[1].expenses).toBe(5)
-  })
-})
-
-// ─── detectRecurring ──────────────────────────────────────────────────────────
-
-describe('detectRecurring', () => {
-  it('returns empty array for empty input', () => {
-    expect(detectRecurring([])).toEqual([])
-  })
-
-  it('detects transactions that appear in multiple months', () => {
-    const txs = [
-      makeTx({ description: 'Netflix subscription', date: '2026-01-15' }),
-      makeTx({ description: 'Netflix subscription', date: '2026-02-15' }),
-      makeTx({ description: 'Netflix subscription', date: '2026-03-15' }),
-    ]
-    const patterns = detectRecurring(txs)
-    expect(patterns.length).toBeGreaterThan(0)
-    expect(patterns[0].description).toBe('Netflix subscription')
-    expect(patterns[0].occurrences).toBe(3)
-  })
-
-  it('ignores single-month repetitions', () => {
-    const txs = [
-      makeTx({ description: 'Coffee', date: '2026-04-01' }),
-      makeTx({ description: 'Coffee', date: '2026-04-02' }),
-    ]
-    const patterns = detectRecurring(txs)
-    expect(patterns).toHaveLength(0)
   })
 })
 

@@ -19,8 +19,10 @@ export interface AnomalyInfo {
 const MIN_SAMPLES = 5
 /** Flag when the amount is more than this multiple of the category median… */
 const MEDIAN_FACTOR = 3
-/** …or more than mean + this many standard deviations */
-const STD_DEVS = 2.5
+/** …and more than this many (scaled) median absolute deviations above the median */
+const MAD_FACTOR = 5
+/** Scales MAD to be comparable to a standard deviation for normal data */
+const MAD_SCALE = 1.4826
 
 function median(sorted: number[]): number {
   const mid = Math.floor(sorted.length / 2)
@@ -32,7 +34,9 @@ function median(sorted: number[]): number {
  *
  * A transaction is anomalous when its category has at least MIN_SAMPLES
  * expenses and the amount exceeds both the median × MEDIAN_FACTOR and
- * mean + STD_DEVS × σ. Income transactions are never flagged.
+ * median + MAD_FACTOR × scaled MAD. Median/MAD are used instead of mean/σ
+ * because they stay robust when the outlier itself is part of the sample.
+ * Income transactions are never flagged.
  */
 export function detectAnomalies(transactions: Transaction[]): Map<string, AnomalyInfo> {
   const result = new Map<string, AnomalyInfo>()
@@ -51,15 +55,16 @@ export function detectAnomalies(transactions: Transaction[]): Map<string, Anomal
 
     const amounts = txs.map(t => t.amount).sort((a, b) => a - b)
     const med = median(amounts)
-    const mean = amounts.reduce((s, a) => s + a, 0) / amounts.length
-    const variance = amounts.reduce((s, a) => s + (a - mean) ** 2, 0) / amounts.length
-    const std = Math.sqrt(variance)
+    if (med <= 0) continue
+
+    const deviations = amounts.map(a => Math.abs(a - med)).sort((a, b) => a - b)
+    const mad = median(deviations)
 
     const medianThreshold = med * MEDIAN_FACTOR
-    const stdThreshold = mean + STD_DEVS * std
+    const madThreshold = med + MAD_FACTOR * mad * MAD_SCALE
 
     for (const t of txs) {
-      if (t.amount > medianThreshold && t.amount > stdThreshold && med > 0) {
+      if (t.amount > medianThreshold && t.amount > madThreshold) {
         result.set(t.id, {
           typicalAmount: med,
           factor: t.amount / med,

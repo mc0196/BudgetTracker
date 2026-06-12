@@ -2,23 +2,9 @@ import { useRef, useState } from 'react'
 import { truncate } from '@/lib/utils'
 import { cn } from '@/lib/utils'
 import { haptics } from '@/lib/haptics'
+import { CATEGORY_ICONS } from '@/lib/categoryIcons'
 import { PrivateAmount } from '@/components/PrivateAmount'
 import type { Transaction } from '@/types'
-
-const CATEGORY_ICONS: Record<string, string> = {
-  'Food & Dining': '🍽️',
-  'Transport':     '🚗',
-  'Shopping':      '🛍️',
-  'Housing':       '🏠',
-  'Health':        '💊',
-  'Entertainment': '🎬',
-  'Travel':        '✈️',
-  'Utilities':     '💡',
-  'Income':        '💰',
-  'Education':     '📚',
-  'Other':         '📦',
-  'Uncategorized': '❓',
-}
 
 const SWIPE_REVEAL = -72   // px to reveal delete button
 const SWIPE_DELETE = -160  // px to auto-trigger delete
