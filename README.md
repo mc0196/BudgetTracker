@@ -7,11 +7,15 @@ Import bank statements, track spending by category, and visualize your finances 
 ## Features
 
 - Import Intesa Sanpaolo exports (CSV/XLS) — extensible to other banks
-- Auto-categorization with keyword rules + manual override
+- Auto-categorization with keyword rules + manual override + fuzzy category suggestions while typing
 - Dashboard with income, expenses, net balance
-- Budget tracking with visual progress bars
-- Charts: spending pie, income/expense bar, daily line
+- Budget tracking with visual progress bars and 80%/100% alerts
+- Charts: spending pie, income/expense bar, daily/weekly line — all with date range picker
 - Add transactions manually with a thumb-friendly numpad
+- Recurring transaction detection (weekly / monthly / yearly)
+- Anomaly detection — flags unusually large amounts per category
+- Dark mode (system / light / dark preference, persisted)
+- Swipe-to-delete with 5-second undo
 - Full offline support via IndexedDB (Dexie.js) + PWA service worker
 
 ## Quick Start
@@ -47,7 +51,7 @@ npm run typecheck         # TypeScript type-check only
 | Routing | React Router v6 |
 | State | Zustand |
 | Database | Dexie.js (IndexedDB) |
-| Charts | Recharts |
+| Charts | ECharts (echarts-for-react) |
 | File parsing | SheetJS (xlsx) |
 | Testing | Vitest + Testing Library |
 | PWA | vite-plugin-pwa |
@@ -65,7 +69,7 @@ src/
     settings/
   pages/           Route-level page components
   hooks/           Data hooks (useTransactions, useAnalytics, …)
-  services/        Business logic (parsing, analytics, import)
+  services/        Business logic (parsing, analytics, import, intelligence)
     parsing/       Bank-specific parsers + factory
   db/              Dexie schema + repository implementations
     repositories/

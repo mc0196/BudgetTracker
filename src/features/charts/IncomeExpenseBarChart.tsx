@@ -41,6 +41,7 @@ export function IncomeExpenseBarChart({ range }: IncomeExpenseBarChartProps) {
     grid: { top: 8, right: 8, bottom: 24, left: 44, containLabel: false },
     tooltip: {
       trigger: 'axis',
+      confine: true,
       axisPointer: { type: 'shadow', shadowStyle: { color: isDark ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.03)' } },
       backgroundColor: tooltipBg,
       borderColor: tooltipBorder,

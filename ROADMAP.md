@@ -1,6 +1,6 @@
 # Roadmap
 
-## v0.1 — Current (Local MVP)
+## v0.1 — Local MVP ✓
 
 - [x] Intesa Sanpaolo import
 - [x] Generic CSV/Excel import
@@ -15,26 +15,29 @@
 
 ---
 
-## v0.2 — Polish & UX
+## v0.2 — Polish & UX ✓
 
-- [ ] Transaction detail / edit page
-- [ ] Swipe to delete on transaction list
-- [ ] Date range picker for charts
-- [ ] Dark mode
-- [ ] Haptic feedback on mobile (Vibration API)
-- [ ] Better empty states with onboarding hints
-- [ ] Import progress indicator for large files
-- [ ] Undo for deletes (IndexedDB transaction rollback)
+- [x] Transaction detail / edit page
+- [x] Swipe to delete on transaction list with undo (5-second window)
+- [x] Date range picker for charts (presets: month / 3m / 6m / year / custom)
+- [x] Dark mode (system / light / dark, persisted, no FOUC)
+- [x] Haptic feedback on mobile (Vibration API)
+- [x] Better empty states with onboarding hero
+- [x] Import progress indicator for large files (chunked with yieldToUI)
+- [x] Recurring transaction detection (weekly / monthly / yearly, shown on dashboard)
+- [x] Budget alerts at 80% and 100% (in-app toast + ProgressBar colour)
+- [x] Category suggestions while typing (Dice similarity, local, no API)
+- [x] Anomaly detection (median + MAD, per-category, ⚠ badge)
 
 ---
 
-## v0.3 — Intelligence
+## v0.3 — Intelligence (partial)
 
-- [ ] **Recurring transaction detection** — surface monthly patterns ("Netflix €12.99 — monthly")
-- [ ] **AI categorization** — send description to Claude API for zero-shot category suggestion
-- [ ] **Budget alerts** — push notification when approaching limit (Web Push API)
-- [ ] **Category suggestions during manual entry** — based on description as you type
-- [ ] **Anomaly detection** — flag unusually large transactions
+- [x] **Recurring transaction detection** — surface monthly patterns ("Netflix €12.99 — monthly")
+- [x] **Budget alerts** — toast when approaching / crossing limit
+- [x] **Category suggestions during manual entry** — fuzzy match on description as you type
+- [x] **Anomaly detection** — flag unusually large transactions per category
+- [ ] **AI categorization** — send description to Claude API for zero-shot category suggestion (requires network + API key)
 
 ---
 

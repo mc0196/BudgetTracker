@@ -46,6 +46,7 @@ export function TimeSeriesChart({ range }: TimeSeriesChartProps) {
     grid: { top: 8, right: 8, bottom: 24, left: 44, containLabel: false },
     tooltip: {
       trigger: 'axis',
+      confine: true,
       axisPointer: {
         type: 'line',
         lineStyle: { color: isDark ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.08)', width: 1, type: 'dashed' },

@@ -70,12 +70,43 @@ The interface layer is the only seam you need to touch.
 
 ---
 
+## Intelligence Services
+
+All local, offline, no API calls.
+
+| Service | Location | What it does |
+|---|---|---|
+| `budgetService` | `src/services/budgetService.ts` | `computeBudgetProgress`, `getBudgetAlertLevel` ('ok'/'warning'/'critical') |
+| `recurringService` | `src/services/recurringService.ts` | `detectRecurringTransactions` — groups by normalized description, classifies cadence via median interval |
+| `suggestionService` | `src/services/suggestionService.ts` | `suggestCategoriesForInput` — Dice similarity over bigrams, falls back to keyword rules |
+| `anomalyService` | `src/services/anomalyService.ts` | `detectAnomalies` — median + MAD (×1.4826 scale) per category, returns a `Map<transactionId, AnomalyInfo>` |
+
+All four are pure functions tested in `tests/services/`.
+
+Hooks wiring:
+- `useBudget` — `useBudgetAlertCheck(month)` returns a checker called before write to detect newly crossed thresholds
+- `useRecurring` — wraps `detectRecurringTransactions` over all transactions
+- `useCategorySuggestions` — `useDeferredValue` + `useMemo` around `suggestCategoriesForInput`
+- `useAnomalies` — wraps `detectAnomalies` over all transactions
+
+---
+
+## Theme System
+
+- Preference stored in `localStorage` key `bt-theme` (`'light' | 'dark' | 'system'`).
+- `src/lib/theme.ts` — pure functions: `getStoredTheme`, `applyTheme`, `watchSystemTheme`.
+- `src/hooks/useTheme.ts` — React hook; `applyTheme` toggles `document.documentElement.classList` → Tailwind `darkMode: 'class'`.
+- Anti-FOUC inline script in `index.html` `<head>` applies the class synchronously before first paint.
+
+---
+
 ## State Management
 
 Zustand store (`src/store/index.ts`) holds only **UI state**:
 - `selectedMonth` — persisted to localStorage
 - `transactionFilters` — current filter state on Transactions page
-- `toast` — ephemeral notification
+- `toast` — ephemeral notification with optional `{ label, onAction }` for undo
+- `privacyMode` — hides amounts with ••••
 
 Reactive data (transactions, categories, budgets) comes directly from Dexie via `useLiveQuery` hooks — no duplicated state.
 

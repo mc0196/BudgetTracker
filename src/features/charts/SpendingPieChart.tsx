@@ -53,6 +53,7 @@ export function SpendingPieChart({ range }: SpendingPieChartProps) {
     animationEasing: 'cubicOut' as const,
     tooltip: {
       trigger: 'item',
+      confine: true,
       backgroundColor: tooltipBg,
       borderColor: tooltipBorder,
       borderWidth: 1,
