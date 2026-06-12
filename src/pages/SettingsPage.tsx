@@ -1,43 +1,52 @@
-import { useState, useRef } from 'react'
-import { Link } from 'react-router-dom'
-import { Card } from '@/components/Card'
+import { useState } from 'react'
 import { CategoryMappings } from '@/features/settings/CategoryMappings'
 import { MacroCategoryEditor } from '@/features/settings/MacroCategoryEditor'
 import { ImportHistory } from '@/features/settings/ImportHistory'
-import { useBudgetMutations, useMonthBudgets } from '@/hooks/useBudget'
-import { useUIStore } from '@/store'
-import { currentMonth, formatCurrency } from '@/lib/utils'
-import { db } from '@/db/schema'
+import { BudgetSettings } from '@/features/settings/BudgetSettings'
+import { DataSettings } from '@/features/settings/DataSettings'
+import { AppearanceSettings } from '@/features/settings/AppearanceSettings'
+import { haptics } from '@/lib/haptics'
 
-type SettingsTab = 'categories' | 'mappings' | 'budget' | 'imports' | 'data'
+type SettingsTab = 'categories' | 'mappings' | 'budget' | 'imports' | 'app'
+
+const TABS: { id: SettingsTab; label: string }[] = [
+  { id: 'categories', label: 'Categories' },
+  { id: 'mappings', label: 'Mappings' },
+  { id: 'budget', label: 'Budget' },
+  { id: 'imports', label: 'Imports' },
+  { id: 'app', label: 'App & Data' },
+]
 
 export function SettingsPage() {
   const [tab, setTab] = useState<SettingsTab>('categories')
 
-  const TABS: { id: SettingsTab; label: string }[] = [
-    { id: 'categories', label: 'Categories' },
-    { id: 'mappings', label: 'Mappings' },
-    { id: 'budget', label: 'Budget' },
-    { id: 'imports', label: 'Imports' },
-    { id: 'data', label: 'Data' },
-  ]
+  const handleTab = (id: SettingsTab) => {
+    haptics.light()
+    setTab(id)
+  }
 
   return (
     <div>
-      <div className="sticky top-0 z-10 px-4 py-4 bg-white/90 dark:bg-[#1a1a28]/90 backdrop-blur-xl border-b border-gray-100 dark:border-white/[0.08]">
+      <div className="sticky top-0 z-10 px-4 py-4 bg-white/90 dark:bg-[#13131e]/90 backdrop-blur-xl border-b border-gray-100 dark:border-white/[0.08]">
         <h1 className="text-xl font-bold text-gray-900 dark:text-slate-100">Settings</h1>
       </div>
 
       {/* Tab bar — scrollable pills */}
-      <div className="flex gap-2 overflow-x-auto px-4 py-3 scrollbar-hide bg-white dark:bg-[#1a1a28] border-b border-gray-100 dark:border-white/[0.08]">
+      <div
+        className="flex gap-2 overflow-x-auto px-4 py-3 scrollbar-hide bg-white dark:bg-[#13131e] border-b border-gray-100 dark:border-white/[0.08]"
+        role="tablist"
+        aria-label="Settings sections"
+      >
         {TABS.map(t => (
           <button
             key={t.id}
-            onClick={() => setTab(t.id)}
-            className={`flex-shrink-0 px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-200 ${
+            onClick={() => handleTab(t.id)}
+            role="tab"
+            aria-selected={tab === t.id}
+            className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all duration-200 min-h-[40px] ${
               tab === t.id
                 ? 'bg-primary-500 text-white shadow-sm shadow-primary-500/30'
-                : 'bg-gray-100 dark:bg-white/[0.07] text-gray-500 dark:text-slate-500'
+                : 'bg-gray-100 dark:bg-white/[0.07] text-gray-500 dark:text-slate-400'
             }`}
           >
             {t.label}
@@ -45,211 +54,17 @@ export function SettingsPage() {
         ))}
       </div>
 
-      <div className="px-4 py-4">
+      <div key={tab} className="px-4 py-4 animate-fade-in">
         {tab === 'categories' && <MacroCategoryEditor />}
         {tab === 'mappings' && <CategoryMappings />}
         {tab === 'budget' && <BudgetSettings />}
         {tab === 'imports' && <ImportHistory />}
-        {tab === 'data' && <DataSettings />}
-      </div>
-    </div>
-  )
-}
-
-// ─── Budget settings ──────────────────────────────────────────────────────────
-
-function BudgetSettings() {
-  const month = currentMonth()
-  const budgets = useMonthBudgets(month)
-  const { upsert, remove } = useBudgetMutations()
-  const { showToast } = useUIStore()
-
-  const [limitStr, setLimitStr] = useState('')
-
-  const totalBudget = budgets?.find(b => !b.category)
-
-  const handleSave = async () => {
-    const limit = parseFloat(limitStr.replace(',', '.'))
-    if (isNaN(limit) || limit <= 0) return
-    await upsert({ month, limit })
-    setLimitStr('')
-    showToast('Budget updated', 'success')
-  }
-
-  return (
-    <div className="space-y-4">
-      <Card>
-        <h3 className="text-sm font-semibold text-gray-700 dark:text-slate-300 mb-3">Monthly Budget ({month})</h3>
-        {totalBudget && (
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-sm text-gray-600 dark:text-slate-400">Current limit</span>
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-semibold text-gray-900 dark:text-slate-100">
-                {formatCurrency(totalBudget.limit)}
-              </span>
-              <button
-                onClick={() => remove(totalBudget.id)}
-                className="text-xs text-expense font-medium"
-              >
-                Remove
-              </button>
-            </div>
+        {tab === 'app' && (
+          <div className="space-y-3">
+            <AppearanceSettings />
+            <DataSettings />
           </div>
         )}
-        <div className="flex gap-2">
-          <div className="flex-1 relative">
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-slate-500 text-sm">€</span>
-            <input
-              type="number"
-              min="0"
-              step="0.01"
-              placeholder={totalBudget ? 'New limit' : 'Set budget limit'}
-              value={limitStr}
-              onChange={e => setLimitStr(e.target.value)}
-              className="w-full pl-7 pr-3 py-2.5 rounded-xl border border-gray-200 dark:border-white/[0.1] bg-white dark:bg-white/[0.04] text-sm text-gray-900 dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-600 focus:outline-none focus:border-primary-400"
-            />
-          </div>
-          <button
-            onClick={handleSave}
-            disabled={!limitStr}
-            className="px-4 py-2.5 rounded-xl bg-primary-500 text-white text-sm font-medium disabled:opacity-50"
-          >
-            Save
-          </button>
-        </div>
-      </Card>
-    </div>
-  )
-}
-
-// ─── Data management ──────────────────────────────────────────────────────────
-
-function DataSettings() {
-  const { showToast } = useUIStore()
-  const [isClearing, setIsClearing] = useState(false)
-  const [isImporting, setIsImporting] = useState(false)
-  const jsonInputRef = useRef<HTMLInputElement>(null)
-
-  const handleExport = async () => {
-    const transactions = await db.transactions.toArray()
-    const json = JSON.stringify(transactions, null, 2)
-    const blob = new Blob([json], { type: 'application/json' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = `budget-tracker-export-${new Date().toISOString().slice(0, 10)}.json`
-    a.click()
-    URL.revokeObjectURL(url)
-    showToast('Data exported', 'success')
-  }
-
-  const handleImportJSON = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    e.target.value = ''
-    setIsImporting(true)
-    try {
-      const text = await file.text()
-      const data = JSON.parse(text)
-      if (!Array.isArray(data)) throw new Error('Invalid format — expected a JSON array')
-      const valid = data.filter(t =>
-        t && typeof t === 'object' &&
-        typeof t.id === 'string' &&
-        typeof t.amount === 'number' &&
-        (t.type === 'income' || t.type === 'expense') &&
-        typeof t.date === 'string' &&
-        typeof t.description === 'string'
-      )
-      if (valid.length === 0) throw new Error('No valid transactions found in file')
-      // bulkPut: existing ids are updated, new ids are inserted — no duplicates
-      await db.transactions.bulkPut(valid)
-      showToast(`Imported ${valid.length} transactions`, 'success')
-    } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Import failed', 'error')
-    } finally {
-      setIsImporting(false)
-    }
-  }
-
-  const handleClearAll = async () => {
-    if (!confirm('This will delete ALL transactions. This cannot be undone. Continue?')) return
-    setIsClearing(true)
-    try {
-      await db.transactions.clear()
-      await db.categoryMappings.clear()
-      await db.budgets.clear()
-      showToast('All data cleared', 'info')
-    } finally {
-      setIsClearing(false)
-    }
-  }
-
-  return (
-    <div className="space-y-3">
-      <Card>
-        <Link to="/import" className="w-full flex items-center gap-3 py-1">
-          <span className="text-xl">📥</span>
-          <div className="text-left">
-            <p className="text-sm font-medium text-gray-800 dark:text-slate-200">Import bank statement</p>
-            <p className="text-xs text-gray-400 dark:text-slate-500">CSV, XLSX or XLS from your bank</p>
-          </div>
-        </Link>
-      </Card>
-
-      <Card>
-        <input
-          ref={jsonInputRef}
-          type="file"
-          accept=".json"
-          onChange={handleImportJSON}
-          className="hidden"
-          disabled={isImporting}
-        />
-        <button
-          onClick={() => jsonInputRef.current?.click()}
-          disabled={isImporting}
-          className="w-full flex items-center gap-3 py-1"
-        >
-          <span className="text-xl">{isImporting ? '⏳' : '📲'}</span>
-          <div className="text-left">
-            <p className="text-sm font-medium text-gray-800 dark:text-slate-200">
-              {isImporting ? 'Importing…' : 'Import from JSON'}
-            </p>
-            <p className="text-xs text-gray-400 dark:text-slate-500">Sync from another device's export</p>
-          </div>
-        </button>
-      </Card>
-
-      <Card>
-        <button
-          onClick={handleExport}
-          className="w-full flex items-center gap-3 py-1"
-        >
-          <span className="text-xl">📤</span>
-          <div className="text-left">
-            <p className="text-sm font-medium text-gray-800 dark:text-slate-200">Export data</p>
-            <p className="text-xs text-gray-400 dark:text-slate-500">Download all transactions as JSON</p>
-          </div>
-        </button>
-      </Card>
-
-      <Card>
-        <button
-          onClick={handleClearAll}
-          disabled={isClearing}
-          className="w-full flex items-center gap-3 py-1"
-        >
-          <span className="text-xl">🗑️</span>
-          <div className="text-left">
-            <p className="text-sm font-medium text-expense">Clear all data</p>
-            <p className="text-xs text-gray-400 dark:text-slate-500">Permanently delete all transactions</p>
-          </div>
-        </button>
-      </Card>
-
-      <div className="text-center pt-4">
-        <p className="text-xs text-gray-300 dark:text-slate-600">BudgetTracker v0.1.0</p>
-        <p className="text-xs text-gray-300 dark:text-slate-600">All data stored locally on your device</p>
       </div>
     </div>
   )

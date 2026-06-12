@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { budgetRepository } from '@/db/repositories/budgetRepository'
 import { useMonthTransactions } from './useTransactions'
-import { computeBudgetProgress } from '@/services/analyticsService'
+import { computeBudgetProgress } from '@/services/budgetService'
 import type { Budget } from '@/types'
 
 export function useMonthBudgets(month: string): Budget[] | undefined {

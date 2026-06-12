@@ -1,23 +1,29 @@
 import ReactECharts from 'echarts-for-react'
-import { useCategoryStats } from '@/hooks/useAnalytics'
+import { useCategoryStatsForRange } from '@/hooks/useAnalytics'
 import { formatCurrency } from '@/lib/utils'
 import { EmptyState } from '@/components/EmptyState'
+import { Skeleton } from '@/components/Skeleton'
 import { useIsDark } from '@/hooks/useIsDark'
+import type { DateRange } from '@/types'
 
 interface SpendingPieChartProps {
-  month: string
+  range: DateRange
 }
 
-export function SpendingPieChart({ month }: SpendingPieChartProps) {
-  const stats = useCategoryStats(month)
+export function SpendingPieChart({ range }: SpendingPieChartProps) {
+  const stats = useCategoryStatsForRange(range)
   const isDark = useIsDark()
 
-  if (!stats || stats.length === 0) {
+  if (stats === undefined) {
+    return <Skeleton className="h-[220px] rounded-2xl" />
+  }
+
+  if (stats.length === 0) {
     return (
       <EmptyState
         icon="🍩"
-        title="No expense data"
-        description="Import transactions to see spending breakdown"
+        title="No expenses in this period"
+        description="Try a wider date range, or import a bank statement"
       />
     )
   }

@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Layout } from '@/components/Layout'
+import { Toast } from '@/components/Toast'
 import { macroCategoryRepository } from '@/db/repositories/categoryRepository'
 
 // Route-level code splitting — each page loads only when navigated to
@@ -43,6 +44,8 @@ export function App() {
           </Route>
         </Routes>
       </Suspense>
+      {/* Global toast — rendered outside Layout so it shows on full-screen routes too */}
+      <Toast />
     </BrowserRouter>
   )
 }

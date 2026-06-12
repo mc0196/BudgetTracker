@@ -1,15 +1,25 @@
 import ReactECharts from 'echarts-for-react'
-import { useMonthSeries } from '@/hooks/useAnalytics'
+import { useMonthlySeriesForDateRange } from '@/hooks/useAnalytics'
 import { formatCompact, formatCurrency, monthLabel } from '@/lib/utils'
 import { EmptyState } from '@/components/EmptyState'
+import { Skeleton } from '@/components/Skeleton'
 import { useIsDark } from '@/hooks/useIsDark'
+import type { DateRange } from '@/types'
 
-export function IncomeExpenseBarChart() {
-  const series = useMonthSeries(6)
+interface IncomeExpenseBarChartProps {
+  range: DateRange
+}
+
+export function IncomeExpenseBarChart({ range }: IncomeExpenseBarChartProps) {
+  const series = useMonthlySeriesForDateRange(range)
   const isDark = useIsDark()
 
-  if (!series || series.length === 0) {
-    return <EmptyState icon="📊" title="No data yet" />
+  if (series === undefined) {
+    return <Skeleton className="h-[200px] rounded-2xl" />
+  }
+
+  if (series.length === 0 || series.every(s => s.transactionCount === 0)) {
+    return <EmptyState icon="📊" title="No data yet" description="Import or add transactions to compare months" />
   }
 
   const data = series.map(s => ({

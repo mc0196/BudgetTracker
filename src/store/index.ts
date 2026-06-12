@@ -31,11 +31,27 @@ interface UIState {
   isLoading: boolean
   setLoading: (loading: boolean) => void
 
-  /** Toast / notification message */
-  toast: { message: string; type: 'success' | 'error' | 'info' } | null
-  showToast: (message: string, type?: 'success' | 'error' | 'info') => void
+  /** Toast / notification message, with optional action (e.g. Undo) */
+  toast: Toast | null
+  showToast: (message: string, type?: ToastType, action?: ToastAction) => void
   clearToast: () => void
 }
+
+export type ToastType = 'success' | 'error' | 'info'
+
+export interface ToastAction {
+  label: string
+  onAction: () => void
+}
+
+export interface Toast {
+  message: string
+  type: ToastType
+  action?: ToastAction
+}
+
+/** Auto-dismiss timer — module-level so a new toast cancels the previous one's timer */
+let toastTimer: ReturnType<typeof setTimeout> | undefined
 
 export const useUIStore = create<UIState>()(
   persist(
@@ -57,12 +73,16 @@ export const useUIStore = create<UIState>()(
       setLoading: (loading) => set({ isLoading: loading }),
 
       toast: null,
-      showToast: (message, type = 'info') => {
-        set({ toast: { message, type } })
-        // Auto-dismiss after 3 s
-        setTimeout(() => set({ toast: null }), 3000)
+      showToast: (message, type = 'info', action) => {
+        if (toastTimer) clearTimeout(toastTimer)
+        set({ toast: { message, type, action } })
+        // Longer window when there's an action so the user can react
+        toastTimer = setTimeout(() => set({ toast: null }), action ? 5000 : 3000)
       },
-      clearToast: () => set({ toast: null }),
+      clearToast: () => {
+        if (toastTimer) clearTimeout(toastTimer)
+        set({ toast: null })
+      },
     }),
     {
       name: 'budget-tracker-ui',

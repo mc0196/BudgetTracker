@@ -37,6 +37,19 @@ export function useTransaction(id: string): Transaction | undefined {
   return useLiveQuery(() => transactionRepository.getById(id), [id])
 }
 
+/** All transactions in an inclusive date range (charts) */
+export function useRangeTransactions(start: string, end: string): Transaction[] | undefined {
+  return useLiveQuery(
+    () => transactionRepository.getByDateRange(start, end),
+    [start, end],
+  )
+}
+
+/** Total number of stored transactions — 0 means first launch / empty app */
+export function useTransactionCount(): number | undefined {
+  return useLiveQuery(() => db.transactions.count())
+}
+
 // ─── Mutation helpers ─────────────────────────────────────────────────────────
 
 export function useTransactionMutations() {

@@ -16,7 +16,7 @@
 
 import * as XLSX from 'xlsx'
 import { formatDate, normalizeCategory } from '@/lib/utils'
-import type { IFileParser } from './types'
+import { yieldToUI, type IFileParser, type ParseProgressCallback } from './types'
 import type { ImportPreview, ParsedTransaction } from '@/types'
 
 // ─── Column aliases (lowercase) ───────────────────────────────────────────────
@@ -178,15 +178,20 @@ export class IntesaParser implements IFileParser {
     return false
   }
 
-  async parse(file: File): Promise<ImportPreview> {
+  async parse(file: File, onProgress?: ParseProgressCallback): Promise<ImportPreview> {
+    onProgress?.({ phase: 'reading', percent: 0 })
     const buffer = await file.arrayBuffer()
     const wb = XLSX.read(buffer, { type: 'array', cellDates: false })
+    onProgress?.({ phase: 'parsing', percent: 0 })
 
     // Try every sheet — Intesa sometimes puts data on Sheet2+
     for (const sheetName of wb.SheetNames) {
       const ws = wb.Sheets[sheetName]
-      const result = this.#tryParseSheet(ws, sheetName)
-      if (result !== null) return result
+      const result = await this.#tryParseSheet(ws, onProgress)
+      if (result !== null) {
+        onProgress?.({ phase: 'parsing', percent: 100 })
+        return result
+      }
     }
 
     throw new Error(
@@ -196,7 +201,10 @@ export class IntesaParser implements IFileParser {
     )
   }
 
-  #tryParseSheet(ws: XLSX.WorkSheet, _sheetName: string): ImportPreview | null {
+  async #tryParseSheet(
+    ws: XLSX.WorkSheet,
+    onProgress?: ParseProgressCallback,
+  ): Promise<ImportPreview | null> {
     const raw = readAllRows(ws)
     if (raw.length === 0) return null
 
@@ -237,8 +245,16 @@ export class IntesaParser implements IFileParser {
     // ── Parse rows ───────────────────────────────────────────────────────────
     const transactions: ParsedTransaction[] = []
 
+    const totalRows = raw.length - headerRowIdx - 1
+
     for (let i = headerRowIdx + 1; i < raw.length; i++) {
       const row = raw[i]
+
+      // Report progress and let the UI repaint every 200 rows
+      if (onProgress && (i - headerRowIdx) % 200 === 0) {
+        onProgress({ phase: 'parsing', percent: ((i - headerRowIdx) / Math.max(totalRows, 1)) * 100 })
+        await yieldToUI()
+      }
 
       // Parse date — skip rows with no valid date
       const date = parseItalianDate(row[dateIdx])

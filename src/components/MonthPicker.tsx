@@ -3,6 +3,7 @@ import { addMonths, subMonths, format, parseISO } from 'date-fns'
 import { useUIStore } from '@/store'
 import { formatMonth, monthLabel } from '@/lib/utils'
 import { cn } from '@/lib/utils'
+import { haptics } from '@/lib/haptics'
 
 /** Generates a list of months from `count` months ago up to today */
 function buildMonthOptions(count = 36): string[] {
@@ -21,6 +22,7 @@ export function MonthPicker() {
   const currentMonthStr = format(new Date(), 'yyyy-MM')
 
   const prev = () => {
+    haptics.light()
     const d = subMonths(parseISO(`${selectedMonth}-01`), 1)
     setSelectedMonth(formatMonth(d))
   }
@@ -28,7 +30,10 @@ export function MonthPicker() {
   const next = () => {
     const d = addMonths(parseISO(`${selectedMonth}-01`), 1)
     const future = format(d, 'yyyy-MM')
-    if (future <= currentMonthStr) setSelectedMonth(future)
+    if (future <= currentMonthStr) {
+      haptics.light()
+      setSelectedMonth(future)
+    }
   }
 
   const isCurrentMonth = selectedMonth === currentMonthStr
@@ -124,6 +129,7 @@ export function MonthPicker() {
                         key={month}
                         disabled={isFuture}
                         onClick={() => {
+                          haptics.light()
                           setSelectedMonth(month)
                           setOpen(false)
                         }}

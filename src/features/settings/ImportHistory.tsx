@@ -1,16 +1,22 @@
 import { useState } from 'react'
 import { Card } from '@/components/Card'
 import { EmptyState } from '@/components/EmptyState'
-import { LoadingSpinner } from '@/components/LoadingSpinner'
-import { useImportSources, useTransactionMutations } from '@/hooks/useTransactions'
-import { useUIStore } from '@/store'
+import { SkeletonTransactionRow } from '@/components/Skeleton'
+import { useImportSources } from '@/hooks/useTransactions'
+import { useUndoableDelete } from '@/hooks/useUndoableDelete'
 
 export function ImportHistory() {
   const sources = useImportSources()
-  const { removeByImportSource } = useTransactionMutations()
-  const { showToast } = useUIStore()
+  const { deleteImport } = useUndoableDelete()
 
-  if (!sources) return <div className="flex justify-center py-8"><LoadingSpinner /></div>
+  if (!sources) {
+    return (
+      <Card padding="none">
+        <SkeletonTransactionRow />
+        <SkeletonTransactionRow />
+      </Card>
+    )
+  }
 
   if (sources.length === 0) {
     return (
@@ -30,8 +36,7 @@ export function ImportHistory() {
             source={item.source}
             count={item.count}
             onDelete={async () => {
-              const deleted = await removeByImportSource(item.source)
-              showToast(`Removed ${deleted} transactions`, 'info')
+              await deleteImport(item.source)
             }}
           />
           {i < sources.length - 1 && (

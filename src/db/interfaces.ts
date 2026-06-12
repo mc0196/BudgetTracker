@@ -26,6 +26,8 @@ export interface ITransactionRepository {
   update(id: string, patch: Partial<Transaction>): Promise<Transaction>
   delete(id: string): Promise<void>
   bulkCreate(transactions: Omit<Transaction, 'id' | 'createdAt'>[]): Promise<Transaction[]>
+  /** Re-inserts previously deleted records preserving their ids (undo support) */
+  restore(transactions: Transaction[]): Promise<void>
   /** Returns all distinct import source labels */
   getImportSources(): Promise<string[]>
   /** Returns all transactions from a specific import */
