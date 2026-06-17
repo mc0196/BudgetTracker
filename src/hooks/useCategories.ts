@@ -1,7 +1,11 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { db } from '@/db/schema'
-import { categoryMappingRepository, macroCategoryRepository } from '@/db/repositories/categoryRepository'
-import type { MacroCategory, CategoryMapping } from '@/types'
+import {
+  categoryMappingRepository,
+  macroCategoryRepository,
+  subcategoryRepository,
+} from '@/db/repositories/categoryRepository'
+import type { MacroCategory, CategoryMapping, Subcategory } from '@/types'
 
 export function useMacroCategories(): MacroCategory[] | undefined {
   return useLiveQuery(() => macroCategoryRepository.getAll())
@@ -9,6 +13,11 @@ export function useMacroCategories(): MacroCategory[] | undefined {
 
 export function useCategoryMappings(): CategoryMapping[] | undefined {
   return useLiveQuery(() => categoryMappingRepository.getAll())
+}
+
+/** All subcategories across every category (live). */
+export function useSubcategories(): Subcategory[] | undefined {
+  return useLiveQuery(() => subcategoryRepository.getAll())
 }
 
 export function useCategoryMutations() {
@@ -25,7 +34,24 @@ export function useCategoryMutations() {
 
   const deleteMapping = (id: string) => categoryMappingRepository.delete(id)
 
-  return { createCategory, updateCategory, deleteCategory, upsertMapping, deleteMapping }
+  const createSubcategory = (parentCategoryId: string, name: string) =>
+    subcategoryRepository.create({ parentCategoryId, name })
+
+  const updateSubcategory = (id: string, patch: Partial<Subcategory>) =>
+    subcategoryRepository.update(id, patch)
+
+  const deleteSubcategory = (id: string) => subcategoryRepository.delete(id)
+
+  return {
+    createCategory,
+    updateCategory,
+    deleteCategory,
+    upsertMapping,
+    deleteMapping,
+    createSubcategory,
+    updateSubcategory,
+    deleteSubcategory,
+  }
 }
 
 /** Returns all unique mapped categories currently used in transactions */
