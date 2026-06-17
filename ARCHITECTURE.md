@@ -45,14 +45,17 @@ File drop
 
 ## Database: Dexie.js (IndexedDB)
 
-Schema lives in `src/db/schema.ts`.  Tables:
+Schema lives in `src/db/schema.ts` (currently at **version 2** — v2 added the `subcategories` table). Tables:
 
 | Table | Primary key | Notable indexes |
 |---|---|---|
 | `transactions` | `id` (UUID) | `date`, `type`, `mappedCategory` |
 | `categoryMappings` | `id` | `originalCategory` (unique) |
 | `macroCategories` | `id` | `name` (unique) |
+| `subcategories` | `id` | `parentCategoryId`, `name` |
 | `budgets` | `id` | `month`, `category` |
+
+Schema migrations use Dexie versioning: bump `this.version(n)` with the new/changed `stores`. New optional, non-indexed fields (e.g. `Transaction.mappedSubcategory`) need no store change and leave existing records valid.
 
 `useLiveQuery` from `dexie-react-hooks` makes all components automatically reactive — any write to Dexie triggers a re-render in every component that reads affected data.
 
