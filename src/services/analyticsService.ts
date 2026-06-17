@@ -105,6 +105,46 @@ export function computeCategoryStats(
   return stats.sort((a, b) => b.total - a.total)
 }
 
+/**
+ * Aggregate a single category's spend by subcategory (drill-down view).
+ * Transactions without a subcategory bucket into 'No subcategory'.
+ * The `category` field of each result holds the subcategory name.
+ * Returns sorted by total descending, percentage relative to the category total.
+ */
+export function computeSubcategoryStats(
+  transactions: Transaction[],
+  category: string,
+  type: 'expense' | 'income' = 'expense',
+): CategoryStats[] {
+  const filtered = transactions.filter(
+    t => t.type === type && (t.mappedCategory || 'Uncategorized') === category,
+  )
+  const total = filtered.reduce((s, t) => s + t.amount, 0)
+
+  if (total === 0) return []
+
+  const bySub = new Map<string, { total: number; count: number }>()
+  for (const t of filtered) {
+    const key = t.mappedSubcategory || 'No subcategory'
+    const existing = bySub.get(key) ?? { total: 0, count: 0 }
+    bySub.set(key, { total: existing.total + t.amount, count: existing.count + 1 })
+  }
+
+  const stats: CategoryStats[] = []
+  let idx = 0
+  for (const [subcategory, { total: subTotal, count }] of bySub) {
+    stats.push({
+      category: subcategory,
+      total: subTotal,
+      count,
+      percentage: (subTotal / total) * 100,
+      color: categoryColor(idx++),
+    })
+  }
+
+  return stats.sort((a, b) => b.total - a.total)
+}
+
 // ─── Daily stats (for time series) ───────────────────────────────────────────
 
 export function computeDailyStats(

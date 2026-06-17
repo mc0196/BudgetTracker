@@ -1,18 +1,31 @@
+import { useState } from 'react'
 import ReactECharts from 'echarts-for-react'
-import { useCategoryStatsForRange } from '@/hooks/useAnalytics'
+import { useCategoryStatsForRange, useSubcategoryStatsForRange } from '@/hooks/useAnalytics'
 import { formatCurrency } from '@/lib/utils'
 import { EmptyState } from '@/components/EmptyState'
 import { Skeleton } from '@/components/Skeleton'
 import { useIsDark } from '@/hooks/useIsDark'
-import type { DateRange } from '@/types'
+import type { CategoryStats, DateRange } from '@/types'
 
 interface SpendingPieChartProps {
   range: DateRange
 }
 
+/** Slice datum shared by the category and subcategory views. */
+interface Slice {
+  category: string
+  total: number
+  count: number
+  percentage: number
+  color?: string
+}
+
 export function SpendingPieChart({ range }: SpendingPieChartProps) {
   const stats = useCategoryStatsForRange(range)
   const isDark = useIsDark()
+  // Tap-to-expand drill-down: name of the category being drilled into, or null.
+  const [expanded, setExpanded] = useState<string | null>(null)
+  const subStats = useSubcategoryStatsForRange(range, expanded)
 
   if (stats === undefined) {
     return <Skeleton className="h-[220px] rounded-2xl" />
@@ -30,7 +43,8 @@ export function SpendingPieChart({ range }: SpendingPieChartProps) {
 
   const top = stats.slice(0, 6)
   const rest = stats.slice(6)
-  const data = rest.length > 0
+  const hasOther = rest.length > 0
+  const data: Slice[] = hasOther
     ? [
         ...top,
         {
@@ -43,6 +57,59 @@ export function SpendingPieChart({ range }: SpendingPieChartProps) {
       ]
     : top
 
+  // Real categories that can be drilled into (excludes the synthetic "Other" bucket).
+  const drillable = new Set(stats.map(s => s.category))
+
+  const handleSliceClick = (params: { name?: string }) => {
+    const name = params.name
+    if (!name) return
+    if (hasOther && name === 'Other') return // synthetic aggregate, not a real category
+    if (drillable.has(name)) setExpanded(name)
+  }
+
+  // ── Drill-down (subcategory) view ───────────────────────────────────────────
+  if (expanded) {
+    return (
+      <div>
+        <button
+          onClick={() => setExpanded(null)}
+          className="flex items-center gap-1.5 mb-2 text-sm font-medium text-primary-600 dark:text-primary-400"
+        >
+          <svg viewBox="0 0 20 20" fill="currentColor" className="w-4 h-4">
+            <path fillRule="evenodd" d="M17 10a.75.75 0 01-.75.75H5.612l4.158 3.96a.75.75 0 11-1.04 1.08l-5.5-5.25a.75.75 0 010-1.08l5.5-5.25a.75.75 0 111.04 1.08L5.612 9.25H16.25A.75.75 0 0117 10z" clipRule="evenodd" />
+          </svg>
+          {expanded}
+        </button>
+
+        {subStats === undefined ? (
+          <Skeleton className="h-[220px] rounded-2xl" />
+        ) : subStats.length === 0 ? (
+          <EmptyState icon="🍩" title="No breakdown available" description="No expenses recorded for this category" />
+        ) : (
+          <PieBody data={subStats} isDark={isDark} />
+        )}
+      </div>
+    )
+  }
+
+  // ── Category view (with tap-to-expand) ──────────────────────────────────────
+  return (
+    <div>
+      <PieBody data={data} isDark={isDark} onSliceClick={handleSliceClick} />
+      <p className="text-center text-[11px] text-gray-400 dark:text-slate-600 mt-2">
+        Tap a slice to see subcategories
+      </p>
+    </div>
+  )
+}
+
+interface PieBodyProps {
+  data: Slice[] | CategoryStats[]
+  isDark: boolean
+  onSliceClick?: (params: { name?: string }) => void
+}
+
+function PieBody({ data, isDark, onSliceClick }: PieBodyProps) {
   const tooltipBg = isDark ? '#1a1a28' : '#ffffff'
   const tooltipBorder = isDark ? 'rgba(255,255,255,0.08)' : '#f3f4f6'
 
@@ -93,8 +160,9 @@ export function SpendingPieChart({ range }: SpendingPieChartProps) {
     <div>
       <ReactECharts
         option={option}
-        style={{ height: 220 }}
+        style={{ height: 220, cursor: onSliceClick ? 'pointer' : 'default' }}
         opts={{ renderer: 'canvas', devicePixelRatio: window.devicePixelRatio }}
+        onEvents={onSliceClick ? { click: onSliceClick } : undefined}
         notMerge
       />
 
