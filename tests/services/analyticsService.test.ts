@@ -3,6 +3,7 @@ import {
   sumByType,
   computeStatsForMonth,
   computeCategoryStats,
+  computeSubcategoryStats,
   computeDailyStats,
   aggregateDailyToWeekly,
   computeMonthlySeriesForRange,
@@ -117,6 +118,43 @@ describe('computeCategoryStats', () => {
     const stats = computeCategoryStats(txs)
     const food = stats.find(s => s.category === 'Food & Dining')!
     expect(food.count).toBe(2)
+  })
+})
+
+// ─── computeSubcategoryStats ──────────────────────────────────────────────────
+
+describe('computeSubcategoryStats', () => {
+  it('returns empty array when the category has no expenses', () => {
+    const txs = [makeTx({ mappedCategory: 'Transport', amount: 50 })]
+    expect(computeSubcategoryStats(txs, 'Housing')).toEqual([])
+  })
+
+  it('aggregates a single category by subcategory, sorted descending', () => {
+    const txs = [
+      makeTx({ mappedCategory: 'Housing', mappedSubcategory: 'Rent', amount: 800 }),
+      makeTx({ mappedCategory: 'Housing', mappedSubcategory: 'Mortgage', amount: 200 }),
+      makeTx({ mappedCategory: 'Housing', mappedSubcategory: 'Rent', amount: 100 }),
+      makeTx({ mappedCategory: 'Transport', mappedSubcategory: 'Fuel', amount: 999 }), // other category
+    ]
+    const stats = computeSubcategoryStats(txs, 'Housing')
+    expect(stats).toHaveLength(2)
+    expect(stats[0].category).toBe('Rent')
+    expect(stats[0].total).toBe(900)
+    expect(stats[0].count).toBe(2)
+    expect(stats[1].category).toBe('Mortgage')
+    expect(stats[1].total).toBe(200)
+  })
+
+  it('buckets transactions without a subcategory under "No subcategory"', () => {
+    const txs = [
+      makeTx({ mappedCategory: 'Housing', mappedSubcategory: 'Rent', amount: 300 }),
+      makeTx({ mappedCategory: 'Housing', amount: 100 }), // no subcategory
+    ]
+    const stats = computeSubcategoryStats(txs, 'Housing')
+    const none = stats.find(s => s.category === 'No subcategory')!
+    expect(none).toBeDefined()
+    expect(none.total).toBe(100)
+    expect(none.percentage).toBeCloseTo(25)
   })
 })
 
