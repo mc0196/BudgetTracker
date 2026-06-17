@@ -10,6 +10,7 @@ import type {
   Transaction,
   CategoryMapping,
   MacroCategory,
+  Subcategory,
   Budget,
   TransactionFilters,
 } from '@/types'
@@ -41,7 +42,11 @@ export interface ITransactionRepository {
 export interface ICategoryMappingRepository {
   getAll(): Promise<CategoryMapping[]>
   getByOriginal(originalCategory: string): Promise<CategoryMapping | undefined>
-  upsert(originalCategory: string, mappedCategory: string): Promise<CategoryMapping>
+  upsert(
+    originalCategory: string,
+    mappedCategory: string,
+    mappedSubcategory?: string,
+  ): Promise<CategoryMapping>
   delete(id: string): Promise<void>
   bulkUpsert(mappings: Array<{ originalCategory: string; mappedCategory: string }>): Promise<void>
 }
@@ -53,6 +58,16 @@ export interface IMacroCategoryRepository {
   getByName(name: string): Promise<MacroCategory | undefined>
   create(category: Omit<MacroCategory, 'id' | 'createdAt'>): Promise<MacroCategory>
   update(id: string, patch: Partial<MacroCategory>): Promise<MacroCategory>
+  delete(id: string): Promise<void>
+}
+
+// ─── Subcategory repository ───────────────────────────────────────────────────
+
+export interface ISubcategoryRepository {
+  getAll(): Promise<Subcategory[]>
+  getByParent(parentCategoryId: string): Promise<Subcategory[]>
+  create(subcategory: Omit<Subcategory, 'id' | 'createdAt'>): Promise<Subcategory>
+  update(id: string, patch: Partial<Subcategory>): Promise<Subcategory>
   delete(id: string): Promise<void>
 }
 

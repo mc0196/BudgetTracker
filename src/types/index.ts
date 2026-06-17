@@ -17,6 +17,8 @@ export interface Transaction {
   originalCategory: string
   /** User-defined macro-category after mapping */
   mappedCategory: string
+  /** Optional subcategory within the mapped macro-category (by name) */
+  mappedSubcategory?: string
   /** Which import run produced this record */
   importSource?: string
   notes?: string
@@ -31,6 +33,8 @@ export interface CategoryMapping {
   id: string
   originalCategory: string
   mappedCategory: string
+  /** Learned subcategory (by name) for this original category, if any */
+  mappedSubcategory?: string
   createdAt: string
 }
 
@@ -44,6 +48,18 @@ export interface MacroCategory {
   color: string
   /** Emoji or icon identifier */
   icon: string
+  createdAt: string
+}
+
+/**
+ * An optional subcategory belonging to a macro-category.
+ * Max 3 per parent category; names default to English and are renameable.
+ */
+export interface Subcategory {
+  id: string
+  /** FK → MacroCategory.id */
+  parentCategoryId: string
+  name: string
   createdAt: string
 }
 
