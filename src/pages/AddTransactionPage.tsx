@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useMacroCategories } from '@/hooks/useCategories'
+import { useMacroCategories, useSubcategories } from '@/hooks/useCategories'
 import { useTransactionMutations } from '@/hooks/useTransactions'
 import { useBudgetAlertCheck } from '@/hooks/useBudget'
 import { CategorySuggestions } from '@/features/transactions/CategorySuggestions'
@@ -13,6 +13,7 @@ import type { TransactionType } from '@/types'
 export function AddTransactionPage() {
   const navigate = useNavigate()
   const categories = useMacroCategories()
+  const subcategories = useSubcategories()
   const { create } = useTransactionMutations()
   const { showToast } = useUIStore()
 
@@ -20,8 +21,19 @@ export function AddTransactionPage() {
   const [amountStr, setAmountStr] = useState('')
   const [description, setDescription] = useState('')
   const [category, setCategory] = useState('')
+  const [subcategory, setSubcategory] = useState('')
   const [date, setDate] = useState(formatDate(new Date()))
   const [isSaving, setIsSaving] = useState(false)
+
+  const selectedCategoryId = categories?.find(c => c.name === category)?.id
+  const availableSubcategories = (subcategories ?? []).filter(
+    s => s.parentCategoryId === selectedCategoryId,
+  )
+
+  const handleCategoryChange = (name: string) => {
+    setCategory(name)
+    setSubcategory('') // reset subcategory when the parent category changes
+  }
 
   const checkBudgetAlert = useBudgetAlertCheck(date.slice(0, 7))
 
@@ -46,6 +58,7 @@ export function AddTransactionPage() {
         description: description.trim(),
         originalCategory: category || 'Manual',
         mappedCategory: category || 'Uncategorized',
+        mappedSubcategory: subcategory || undefined,
       })
       if (crossed === 'critical') {
         haptics.warning()
@@ -137,13 +150,13 @@ export function AddTransactionPage() {
             <CategorySuggestions
               description={description}
               selected={category}
-              onSelect={setCategory}
+              onSelect={handleCategoryChange}
             />
 
             <div className="grid grid-cols-2 gap-3">
               <select
                 value={category}
-                onChange={e => setCategory(e.target.value)}
+                onChange={e => handleCategoryChange(e.target.value)}
                 className="w-full px-3 py-3.5 rounded-2xl border border-gray-200 dark:border-white/[0.1] bg-gray-50 dark:bg-[#13131e] text-sm text-gray-700 dark:text-slate-300 focus:outline-none focus:border-primary-400 transition-colors"
               >
                 <option value="">Category</option>
@@ -159,6 +172,19 @@ export function AddTransactionPage() {
                 className="w-full px-3 py-3.5 rounded-2xl border border-gray-200 dark:border-white/[0.1] bg-gray-50 dark:bg-[#13131e] text-sm text-gray-700 dark:text-slate-300 focus:outline-none focus:border-primary-400 transition-colors"
               />
             </div>
+
+            {availableSubcategories.length > 0 && (
+              <select
+                value={subcategory}
+                onChange={e => setSubcategory(e.target.value)}
+                className="w-full px-3 py-3.5 rounded-2xl border border-gray-200 dark:border-white/[0.1] bg-gray-50 dark:bg-[#13131e] text-sm text-gray-700 dark:text-slate-300 focus:outline-none focus:border-primary-400 transition-colors"
+              >
+                <option value="">Subcategory (optional)</option>
+                {availableSubcategories.map(s => (
+                  <option key={s.id} value={s.name}>{s.name}</option>
+                ))}
+              </select>
+            )}
           </div>
 
           {/* Numpad */}

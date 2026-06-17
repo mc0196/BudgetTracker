@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import { Card } from '@/components/Card'
-import { useMacroCategories } from '@/hooks/useCategories'
+import { useMacroCategories, useSubcategories } from '@/hooks/useCategories'
 import type { Transaction, TransactionType } from '@/types'
 
 export interface TransactionEditValues {
   amount: number
   description: string
   mappedCategory: string
+  mappedSubcategory?: string
   date: string
   type: TransactionType
 }
@@ -21,12 +22,30 @@ const INPUT_CLASSES =
 
 export function TransactionEditForm({ transaction, onSave }: TransactionEditFormProps) {
   const categories = useMacroCategories()
+  const subcategories = useSubcategories()
 
   const [amount, setAmount] = useState(transaction.amount.toString())
   const [description, setDescription] = useState(transaction.description)
   const [category, setCategory] = useState(transaction.mappedCategory)
+  const [subcategory, setSubcategory] = useState(transaction.mappedSubcategory ?? '')
   const [date, setDate] = useState(transaction.date)
   const [type, setType] = useState<TransactionType>(transaction.type)
+
+  // Subcategories available for the currently selected category (by name → id).
+  const selectedCategoryId = categories?.find(c => c.name === category)?.id
+  const availableSubcategories = (subcategories ?? []).filter(
+    s => s.parentCategoryId === selectedCategoryId,
+  )
+
+  const handleCategoryChange = (name: string) => {
+    setCategory(name)
+    // Drop the subcategory when it no longer belongs to the new category.
+    const nextId = categories?.find(c => c.name === name)?.id
+    const stillValid = (subcategories ?? []).some(
+      s => s.parentCategoryId === nextId && s.name === subcategory,
+    )
+    if (!stillValid) setSubcategory('')
+  }
 
   const parsedAmount = parseFloat(amount.replace(',', '.'))
   const isValid = !isNaN(parsedAmount) && parsedAmount > 0 && description.trim().length > 0 && !!date
@@ -37,6 +56,7 @@ export function TransactionEditForm({ transaction, onSave }: TransactionEditForm
       amount: parsedAmount,
       description: description.trim(),
       mappedCategory: category,
+      mappedSubcategory: subcategory || undefined,
       date,
       type,
     })
@@ -91,13 +111,25 @@ export function TransactionEditForm({ transaction, onSave }: TransactionEditForm
 
         <label className="block">
           <span className="block text-xs font-medium text-gray-400 dark:text-slate-500 uppercase tracking-wide mb-1.5">Category</span>
-          <select value={category} onChange={e => setCategory(e.target.value)} className={INPUT_CLASSES}>
+          <select value={category} onChange={e => handleCategoryChange(e.target.value)} className={INPUT_CLASSES}>
             {categories?.map(c => (
               <option key={c.id} value={c.name}>{c.icon} {c.name}</option>
             ))}
             <option value="Uncategorized">❓ Uncategorized</option>
           </select>
         </label>
+
+        {availableSubcategories.length > 0 && (
+          <label className="block">
+            <span className="block text-xs font-medium text-gray-400 dark:text-slate-500 uppercase tracking-wide mb-1.5">Subcategory</span>
+            <select value={subcategory} onChange={e => setSubcategory(e.target.value)} className={INPUT_CLASSES}>
+              <option value="">— None —</option>
+              {availableSubcategories.map(s => (
+                <option key={s.id} value={s.name}>{s.name}</option>
+              ))}
+            </select>
+          </label>
+        )}
 
         <label className="block">
           <span className="block text-xs font-medium text-gray-400 dark:text-slate-500 uppercase tracking-wide mb-1.5">Date</span>
