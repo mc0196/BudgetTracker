@@ -38,9 +38,16 @@ export function TransactionDetailPage() {
   const handleSave = async (values: TransactionEditValues) => {
     haptics.success()
     await update(transaction.id, values)
-    // Persist the mapping so future imports auto-categorize the same original category
-    if (transaction.originalCategory && values.mappedCategory !== transaction.mappedCategory) {
-      await categoryService.setMapping(transaction.originalCategory, values.mappedCategory)
+    // Persist the mapping so future imports auto-categorize the same original
+    // category — learning both the macro-category and the subcategory.
+    const categoryChanged = values.mappedCategory !== transaction.mappedCategory
+    const subcategoryChanged = values.mappedSubcategory !== transaction.mappedSubcategory
+    if (transaction.originalCategory && (categoryChanged || subcategoryChanged)) {
+      await categoryService.setMapping(
+        transaction.originalCategory,
+        values.mappedCategory,
+        values.mappedSubcategory ?? '',
+      )
     }
     showToast('Transaction updated', 'success')
     setIsEditing(false)
@@ -114,6 +121,11 @@ export function TransactionDetailPage() {
               <Field label="Category">
                 <span className="text-sm text-gray-800 dark:text-slate-200">{transaction.mappedCategory}</span>
               </Field>
+              {transaction.mappedSubcategory && (
+                <Field label="Subcategory">
+                  <span className="text-sm text-gray-800 dark:text-slate-200">{transaction.mappedSubcategory}</span>
+                </Field>
+              )}
               <Field label="Date">
                 <span className="text-sm text-gray-800 dark:text-slate-200">{transaction.date}</span>
               </Field>

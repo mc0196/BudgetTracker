@@ -18,7 +18,7 @@ interface TransactionItemProps {
 }
 
 export function TransactionItem({ transaction, onClick, onDelete, isAnomaly }: TransactionItemProps) {
-  const { amount, type, description, mappedCategory, date } = transaction
+  const { amount, type, description, mappedCategory, mappedSubcategory, date } = transaction
   const isIncome = type === 'income'
 
   const [swipeX, setSwipeX] = useState(0)
@@ -143,6 +143,7 @@ export function TransactionItem({ transaction, onClick, onDelete, isAnomaly }: T
           </p>
           <p className="text-xs text-gray-400 dark:text-slate-500">
             {mappedCategory}
+            {mappedSubcategory && <span className="text-gray-300 dark:text-slate-600"> · {mappedSubcategory}</span>}
             {isAnomaly && (
               <span
                 className="ml-1.5 inline-flex items-center gap-0.5 text-[10px] font-semibold text-amber-600 dark:text-amber-400"

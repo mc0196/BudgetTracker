@@ -4,6 +4,7 @@ import { useMonthTransactions, useAllTransactions, useRangeTransactions } from '
 import {
   computeStatsForMonth,
   computeCategoryStats,
+  computeSubcategoryStats,
   computeMonthlySeriesForRange,
   computeDailyStats,
   aggregateDailyToWeekly,
@@ -60,6 +61,22 @@ export function useCategoryStatsForRange(range: DateRange) {
   return useMemo(
     () => (transactions ? computeCategoryStats(transactions, 'expense') : undefined),
     [transactions],
+  )
+}
+
+/**
+ * Subcategory breakdown (expenses) within a single category for a date range.
+ * Pass `category = null` to skip computation (drill-down not active).
+ * undefined = loading or inactive.
+ */
+export function useSubcategoryStatsForRange(range: DateRange, category: string | null) {
+  const transactions = useRangeTransactions(range.start, range.end)
+  return useMemo(
+    () =>
+      transactions && category
+        ? computeSubcategoryStats(transactions, category, 'expense')
+        : undefined,
+    [transactions, category],
   )
 }
 

@@ -2,7 +2,7 @@ import { lazy, Suspense, useEffect } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { Layout } from '@/components/Layout'
 import { Toast } from '@/components/Toast'
-import { macroCategoryRepository } from '@/db/repositories/categoryRepository'
+import { macroCategoryRepository, subcategoryRepository } from '@/db/repositories/categoryRepository'
 
 // Route-level code splitting — each page loads only when navigated to
 const DashboardPage       = lazy(() => import('@/pages/DashboardPage').then(m => ({ default: m.DashboardPage })))
@@ -23,7 +23,12 @@ function PageFallback() {
 
 export function App() {
   useEffect(() => {
-    macroCategoryRepository.seedDefaults().catch(console.error)
+    // Seed categories first, then their default subcategories (which need
+    // the parent category ids to exist).
+    macroCategoryRepository
+      .seedDefaults()
+      .then(() => subcategoryRepository.seedDefaults())
+      .catch(console.error)
   }, [])
 
   return (

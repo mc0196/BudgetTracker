@@ -51,9 +51,11 @@ export class ImportService {
     onProgress?.({ phase: 'categorizing', percent: 0 })
     await categoryService.warm()
 
-    // Resolve mapped categories for all transactions
+    // Resolve mapped categories (and learned/suggested subcategories) for all transactions
     const mappings = await categoryService.batchResolve(toImport)
-    const mappingMap = new Map(mappings.map(m => [m.original, m.mapped]))
+    const mappingMap = new Map(
+      mappings.map(m => [m.original, { mapped: m.mapped, subcategory: m.subcategory }]),
+    )
     onProgress?.({ phase: 'categorizing', percent: 100 })
 
     // Deduplicate: skip exact duplicates (same date, amount, description)
@@ -70,11 +72,15 @@ export class ImportService {
 
     // Persist in chunks so progress is visible on large files
     const importSource = `${preview.source} — ${formatMonth(new Date())}`
-    const toInsert = newTransactions.map(t => ({
-      ...t,
-      mappedCategory: mappingMap.get(t.originalCategory) ?? 'Uncategorized',
-      importSource,
-    }))
+    const toInsert = newTransactions.map(t => {
+      const resolved = mappingMap.get(t.originalCategory)
+      return {
+        ...t,
+        mappedCategory: resolved?.mapped ?? 'Uncategorized',
+        mappedSubcategory: resolved?.subcategory,
+        importSource,
+      }
+    })
 
     const records: Transaction[] = []
     onProgress?.({ phase: 'saving', percent: 0 })
